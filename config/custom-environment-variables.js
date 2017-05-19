@@ -10,24 +10,17 @@ module.exports = {
     "Host":
     {
         "domain": "HOST_NAME",
-        "port": "HOST_RESOURCESERVICE_PORT",
+        "port": "HOST_AGENTDIALERSERVICE_PORT",
         "version": "HOST_VERSION",
         "hostpath":"HOST_PATH",
         "logfilepath": "LOG4JS_CONFIG"
     },
     "Redis":
     {
-        "ip": "SYS_DASHBOARD_REDIS_HOST",
-        "port": "SYS_DASHBOARD_REDIS_PORT",
-        "password":"SYS_DASHBOARD_REDIS_PASSWORD",
-        "redisdb":"SYS_REDIS_DB_DASHBOARD"
-    },
-    "ArdsRedis":
-    {
         "ip": "SYS_REDIS_HOST",
         "port": "SYS_REDIS_PORT",
         "password":"SYS_REDIS_PASSWORD",
-        "ardsData":"SYS_REDIS_DB_ARDS"
+         "user": "SYS_REDIS_USER"
     },
 
     "Security":
