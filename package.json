@@ -14,7 +14,7 @@
     "config": "^1.19.0",
     "cors": "^2.7.1",
     "dvp-common": "^0.5.3",
-    "dvp-dbmodels": "^1.2.0",
+    "dvp-dbmodels": "^1.2.3",
     "enum": "^2.3.0",
     "moment": "^2.11.2",
     "node": "^0.0.0",

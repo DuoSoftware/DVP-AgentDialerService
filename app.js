@@ -97,6 +97,54 @@ RestServer.post('/DVP/API/' + version + '/AgentDialer/Resource/:ResourceId/Dial'
     return next();
 });
 
+RestServer.get('/DVP/API/' + version + '/AgentDialer/Job', authorization({
+    resource: "attribute",
+    action: "write"
+}), function (req, res, next) {
+    try {
+
+        logger.info('[CheckStatus] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+
+        if (!req.user ||!req.user.tenant || !req.user.company)
+            throw new Error("invalid tenant or company.");
+
+        agentDialHandler.PendingJobList(req,res);
+
+    }
+    catch (ex) {
+
+        logger.error('[CheckStatus] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        logger.debug('[CheckStatus] - Request response : %s ', jsonString);
+        res.end(jsonString);
+    }
+    return next();
+});
+
+RestServer.put('/DVP/API/' + version + '/AgentDialer/Number/:AgentDialNumberId/Status', authorization({
+    resource: "attribute",
+    action: "write"
+}), function (req, res, next) {
+    try {
+
+        logger.info('[UpdateDialInfo] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+
+        if (!req.user ||!req.user.tenant || !req.user.company)
+            throw new Error("invalid tenant or company.");
+
+        agentDialHandler.UpdateDialInfo(req,res);
+
+    }
+    catch (ex) {
+
+        logger.error('[UpdateDialInfo] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        logger.debug('[UpdateDialInfo] - Request response : %s ', jsonString);
+        res.end(jsonString);
+    }
+    return next();
+});
+
 RestServer.get('/DVP/API/' + version + '/AgentDialer/Job/:jobId', authorization({
     resource: "attribute",
     action: "write"
@@ -121,25 +169,25 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Job/:jobId', authorization(
     return next();
 });
 
-RestServer.get('/DVP/API/' + version + '/AgentDialer/Job', authorization({
+RestServer.get('/DVP/API/' + version + '/AgentDialer/Resource/:ResourceId/Numbers', authorization({
     resource: "attribute",
     action: "write"
 }), function (req, res, next) {
     try {
 
-        logger.info('[CheckStatus] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+        logger.info('[GetNumberList] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
 
         if (!req.user ||!req.user.tenant || !req.user.company)
             throw new Error("invalid tenant or company.");
 
-        agentDialHandler.PendingJobList(req,res);
+        agentDialHandler.GetNumberList(req,res);
 
     }
     catch (ex) {
 
-        logger.error('[CheckStatus] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        logger.error('[GetNumberList] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
         var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
-        logger.debug('[CheckStatus] - Request response : %s ', jsonString);
+        logger.debug('[GetNumberList] - Request response : %s ', jsonString);
         res.end(jsonString);
     }
     return next();
