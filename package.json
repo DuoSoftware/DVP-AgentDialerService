@@ -9,6 +9,7 @@
   "license": "ISC",
   "description": "Agent Dialer Backend Service",
   "dependencies": {
+    "async": "^2.4.0",
     "collections": "^3.0.0",
     "config": "^1.19.0",
     "cors": "^2.7.1",

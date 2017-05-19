@@ -49,6 +49,30 @@ RestServer.listen(port, function () {
 
 //------------------------- Agent Dial Handler ------------------------- \\
 
+RestServer.post('/DVP/API/' + version + '/AgentDialer/AssignNumbers', authorization({
+    resource: "attribute",
+    action: "write"
+}), function (req, res, next) {
+    try {
+
+        logger.info('[AssingNumberToAgent] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+
+        if (!req.user ||!req.user.tenant || !req.user.company)
+            throw new Error("invalid tenant or company.");
+
+        agentDialHandler.AssingNumberToAgent(req,res);
+
+    }
+    catch (ex) {
+
+        logger.error('[AssingNumberToAgent] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        logger.debug('[AssingNumberToAgent] - Request response : %s ', jsonString);
+        res.end(jsonString);
+    }
+    return next();
+});
+
 RestServer.post('/DVP/API/' + version + '/AgentDialer/Resource/:ResourceId/Dial', authorization({
     resource: "attribute",
     action: "write"
