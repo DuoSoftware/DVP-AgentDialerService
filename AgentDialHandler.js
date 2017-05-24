@@ -4,6 +4,7 @@
 
 var messageFormatter = require('dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js');
 var logger = require('dvp-common/LogHandler/CommonLogHandler.js').logger;
+var redisHandler = require('./RedisHandler');
 var DbConn = require('dvp-dbmodels');
 var nodeUuid = require('node-uuid');
 var moment = require('moment');
@@ -59,6 +60,8 @@ module.exports.SaveDialInfo = function (req, res) {
     companyUserCollection[req.user.company].push(req.user.iss);
     companyCollection[req.user.iss].push(jobId);
 
+    redisHandler.CollectJobList(req.user.company,req.user.iss,jobId);
+
     var jsonString;
     DbConn.DialerAgentDialInfo.bulkCreate(
         dialerAgentDialInfo, {validate: false, individualHooks: true}
@@ -72,6 +75,8 @@ module.exports.SaveDialInfo = function (req, res) {
     }).finally(function () {
         logger.info('SaveDialInfo Done...............................');
         delete jobCollection[jobId];
+
+        redisHandler.DeleteJob(req.user.iss,jobId);
         companyCollection[req.user.iss].splice(jobId, 1);
         if (companyCollection[req.user.iss].length == 0) {
             delete companyCollection[req.user.iss];
@@ -200,12 +205,15 @@ module.exports.UpdateDialInfo = function (req, res) {
         ).then(function (cmp) {
         if (cmp) {
             cmp.DialerState = req.body.DialerState;
+            cmp.OtherData = req.body.OtherData;
             cmp.AttemptCount = cmp.AttemptCount + 1;
             DbConn.DialerAgentDialInfo
                 .update(
                     {
                         DialerState: req.body.DialerState,
-                        AttemptCount: cmp.AttemptCount
+                        OtherData: req.body.OtherData,
+                        AttemptCount: cmp.AttemptCount,
+                        Redial: req.body.Redial
                     },
                     {
                         where: [{AgentDialNumberId: dialId}, {TenantId: req.user.tenant}, {CompanyId: req.user.company}]
@@ -240,9 +248,9 @@ module.exports.GetNumberList = function (req, res) {
     var jsonString;
 
     /*DbConn.ResAttribute.findAll({
-        where: [{Status: true}, {TenantId: tenantId}, {CompanyId: companyId}], offset: ((pageNo - 1) * rowCount),
-        limit: rowCount,order: [['AttributeId', 'DESC']]
-    })*/
+     where: [{Status: true}, {TenantId: tenantId}, {CompanyId: companyId}], offset: ((pageNo - 1) * rowCount),
+     limit: rowCount,order: [['AttributeId', 'DESC']]
+     })*/
 
     var pageNo = req.params.pageNo;
     var rowCount = req.params.rowCount;
@@ -250,22 +258,63 @@ module.exports.GetNumberList = function (req, res) {
     DbConn.DialerAgentDialInfo
         .findAll(
             {
-                where: [{StartDate: { $gte: req.params.StartDate }},{ResourceId: req.params.ResourceId}, {TenantId: req.user.tenant}, {CompanyId: req.user.company}], offset: ((pageNo - 1) * rowCount),
-                limit: rowCount
+                where: {
+                    StartDate: {$lte: req.params.StartDate},
+                    ResourceId: req.params.ResourceId,
+                    TenantId: req.user.tenant,
+                    CompanyId: req.user.company,
+                    $or: [
+                        {
+                            Redial:
+                                {
+                                    $eq: true
+                                }
+                        },
+                        {
+                            DialerState:
+                                {
+                                    $eq: "New"
+                                }
+                        }
+                    ]
+                },
+                offset: ((pageNo - 1) * rowCount),
+                limit: rowCount,
+                order: [['StartDate', 'ASC'], ['AttemptCount', 'ASC']]
             }
         ).then(function (cmp) {
         jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
         res.end(jsonString);
     }).error(function (err) {
-        logger.error('GetNumberList - [%s] - [PGSQL] - UpdateDialInfo  failed', dialId, err);
+        logger.error('GetNumberList - [%s] - [PGSQL]  failed', req.params.ResourceId, err);
         jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
         res.end(jsonString);
     });
+
+    /*DbConn.DialerAgentDialInfo
+     .findAll(
+     {
+     where: [{
+     DialerState: 'New'
+     },{Redial:true}, {StartDate: {$lte: req.params.StartDate}}, {ResourceId: req.params.ResourceId}, {TenantId: req.user.tenant}, {CompanyId: req.user.company}],
+     offset: ((pageNo - 1) * rowCount),
+     limit: rowCount,
+     order: [['StartDate', 'ASC'], ['AttemptCount', 'ASC']]
+     }
+     ).then(function (cmp) {
+     jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
+     res.end(jsonString);
+     }).error(function (err) {
+     logger.error('GetNumberList - [%s] - [PGSQL]  failed', req.params.ResourceId, err);
+     jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+     res.end(jsonString);
+     });*/
 };
 
 module.exports.PendingJobList = function (req, res) {
-    var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, companyCollection[req.user.iss]);
-    res.end(jsonString);
+    redisHandler.PendingJobList(req.user.iss,res);
+    /*var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, companyCollection[req.user.iss]);
+    res.end(jsonString);*/
 };
 
 module.exports.CheckStatus = function (req, res) {

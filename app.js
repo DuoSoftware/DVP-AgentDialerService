@@ -11,6 +11,7 @@ var port = config.Host.port || 3000;
 var version = config.Host.version;
 var logger = require('dvp-common/LogHandler/CommonLogHandler.js').logger;
 var agentDialHandler = require('./AgentDialHandler');
+var redisHandler = require('./RedisHandler');
 
 
 //-------------------------  Restify Server ------------------------- \\
@@ -50,7 +51,7 @@ RestServer.listen(port, function () {
 //------------------------- Agent Dial Handler ------------------------- \\
 
 RestServer.post('/DVP/API/' + version + '/AgentDialer/AssignNumbers', authorization({
-    resource: "attribute",
+    resource: "myUserProfile",
     action: "write"
 }), function (req, res, next) {
     try {
@@ -74,7 +75,7 @@ RestServer.post('/DVP/API/' + version + '/AgentDialer/AssignNumbers', authorizat
 });
 
 RestServer.post('/DVP/API/' + version + '/AgentDialer/Resource/:ResourceId/Dial', authorization({
-    resource: "attribute",
+    resource: "myUserProfile",
     action: "write"
 }), function (req, res, next) {
     try {
@@ -98,7 +99,7 @@ RestServer.post('/DVP/API/' + version + '/AgentDialer/Resource/:ResourceId/Dial'
 });
 
 RestServer.get('/DVP/API/' + version + '/AgentDialer/Job', authorization({
-    resource: "attribute",
+    resource: "myUserProfile",
     action: "write"
 }), function (req, res, next) {
     try {
@@ -121,8 +122,33 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Job', authorization({
     return next();
 });
 
+RestServer.del('/DVP/API/' + version + '/AgentDialer/Job', authorization({
+    resource: "myUserProfile",
+    action: "write"
+}), function (req, res, next) {
+    try {
+
+        logger.info('[CheckStatus] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+
+        if (!req.user ||!req.user.tenant || !req.user.company)
+            throw new Error("invalid tenant or company.");
+
+
+        redisHandler.DeletePendingJob(req,res);
+
+    }
+    catch (ex) {
+
+        logger.error('[CheckStatus] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        logger.debug('[CheckStatus] - Request response : %s ', jsonString);
+        res.end(jsonString);
+    }
+    return next();
+});
+
 RestServer.put('/DVP/API/' + version + '/AgentDialer/Number/:AgentDialNumberId/Status', authorization({
-    resource: "attribute",
+    resource: "myUserProfile",
     action: "write"
 }), function (req, res, next) {
     try {
@@ -146,7 +172,7 @@ RestServer.put('/DVP/API/' + version + '/AgentDialer/Number/:AgentDialNumberId/S
 });
 
 RestServer.get('/DVP/API/' + version + '/AgentDialer/Job/:jobId', authorization({
-    resource: "attribute",
+    resource: "myUserProfile",
     action: "write"
 }), function (req, res, next) {
     try {
@@ -170,8 +196,8 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Job/:jobId', authorization(
 });
 
 RestServer.get('/DVP/API/' + version + '/AgentDialer/Resource/:ResourceId/Numbers', authorization({
-    resource: "attribute",
-    action: "write"
+    resource: "myUserProfile",
+    action: "read"
 }), function (req, res, next) {
     try {
 
