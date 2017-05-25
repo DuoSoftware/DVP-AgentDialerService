@@ -326,3 +326,32 @@ module.exports.CheckStatus = function (req, res) {
     }
     res.end(jsonString);
 };
+
+module.exports.HeaderDetails = function (req, res) {
+
+    var jsonString;
+
+    var query = {
+        attributes: [
+            [DbConn.SequelizeConn.fn('DISTINCT', DbConn.SequelizeConn.col('"BatchName"')), 'BatchName'],
+            [DbConn.SequelizeConn.fn('DISTINCT', DbConn.SequelizeConn.col("DialerState")), 'DialerState']
+        ],
+        where: [{TenantId: req.user.tenant},
+            {CompanyId: req.user.company}]
+    };
+
+
+    DbConn.DialerAgentDialInfo
+        .findAll(
+            query
+        ).then(function (cmp) {
+        jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
+        res.end(jsonString);
+    }).error(function (err) {
+        logger.error('GetNumberList - [%s] - [PGSQL]  failed', req.params.ResourceId, err);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        res.end(jsonString);
+    });
+
+
+};

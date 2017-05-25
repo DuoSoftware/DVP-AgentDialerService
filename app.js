@@ -219,6 +219,30 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Resource/:ResourceId/Number
     return next();
 });
 
+RestServer.get('/DVP/API/' + version + '/AgentDialer/HeaderDetails', authorization({
+    resource: "myUserProfile",
+    action: "read"
+}), function (req, res, next) {
+    try {
+
+        logger.info('[HeaderDetails] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+
+        if (!req.user ||!req.user.tenant || !req.user.company)
+            throw new Error("invalid tenant or company.");
+
+        agentDialHandler.HeaderDetails(req,res);
+
+    }
+    catch (ex) {
+
+        logger.error('[HeaderDetails] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        logger.debug('[HeaderDetails] - Request response : %s ', jsonString);
+        res.end(jsonString);
+    }
+    return next();
+});
+
 //------------------------- Agent Dial Handler ------------------------- \\
 
 //------------------------- Crossdomain ------------------------- \\
