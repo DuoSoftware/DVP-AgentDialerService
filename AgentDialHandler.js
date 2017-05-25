@@ -38,7 +38,7 @@ module.exports.SaveDialInfo = function (req, res) {
         });
     }
 
-    var jobId = nodeUuid.v1();
+    var jobId = req.body.BatchName + "_-_" + nodeUuid.v1();
 
 
     jobCollection[jobId] = {
@@ -60,7 +60,7 @@ module.exports.SaveDialInfo = function (req, res) {
     companyUserCollection[req.user.company].push(req.user.iss);
     companyCollection[req.user.iss].push(jobId);
 
-    redisHandler.CollectJobList(req.user.company,req.user.iss,jobId);
+    redisHandler.CollectJobList(req.user.company, req.user.iss, jobId);
 
     var jsonString;
     DbConn.DialerAgentDialInfo.bulkCreate(
@@ -76,7 +76,7 @@ module.exports.SaveDialInfo = function (req, res) {
         logger.info('SaveDialInfo Done...............................');
         delete jobCollection[jobId];
 
-        redisHandler.DeleteJob(req.user.iss,jobId);
+        redisHandler.DeleteJob(req.user.iss, jobId);
         companyCollection[req.user.iss].splice(jobId, 1);
         if (companyCollection[req.user.iss].length == 0) {
             delete companyCollection[req.user.iss];
@@ -265,16 +265,14 @@ module.exports.GetNumberList = function (req, res) {
                     CompanyId: req.user.company,
                     $or: [
                         {
-                            Redial:
-                                {
-                                    $eq: true
-                                }
+                            Redial: {
+                                $eq: true
+                            }
                         },
                         {
-                            DialerState:
-                                {
-                                    $eq: "New"
-                                }
+                            DialerState: {
+                                $eq: "New"
+                            }
                         }
                     ]
                 },
@@ -312,9 +310,9 @@ module.exports.GetNumberList = function (req, res) {
 };
 
 module.exports.PendingJobList = function (req, res) {
-    redisHandler.PendingJobList(req.user.iss,res);
+    redisHandler.PendingJobList(req.user.iss, res);
     /*var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, companyCollection[req.user.iss]);
-    res.end(jsonString);*/
+     res.end(jsonString);*/
 };
 
 module.exports.CheckStatus = function (req, res) {
@@ -331,27 +329,140 @@ module.exports.HeaderDetails = function (req, res) {
 
     var jsonString;
 
-    var query = {
+    var querys = [{
         attributes: [
-            [DbConn.SequelizeConn.fn('DISTINCT', DbConn.SequelizeConn.col('"BatchName"')), 'BatchName'],
-            [DbConn.SequelizeConn.fn('DISTINCT', DbConn.SequelizeConn.col("DialerState")), 'DialerState']
+            [DbConn.SequelizeConn.fn('DISTINCT', DbConn.SequelizeConn.col('"BatchName"')), 'BatchName']
         ],
         where: [{TenantId: req.user.tenant},
             {CompanyId: req.user.company}]
+    },
+        {
+            attributes: [
+                [DbConn.SequelizeConn.fn('DISTINCT', DbConn.SequelizeConn.col("DialerState")), 'DialerState']
+            ],
+            where: [{TenantId: req.user.tenant},
+                {CompanyId: req.user.company}]
+        }];
+
+    var functions = [];
+    querys.forEach(function (query) {
+        functions.push(function (callback) {
+            DbConn.DialerAgentDialInfo
+                .findAll(
+                    query
+                ).then(function (cmp) {
+                callback(undefined, cmp);
+            }).error(function (err) {
+                callback(err, undefined);
+            });
+        });
+
+    });
+
+    async.parallel(functions,
+        function (err, results) {
+            if (err) {
+                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+                res.end(jsonString);
+            } else {
+                var response = {};
+                if (results[0]) {
+                    var out = Object.keys(results[0]).map(function (data) {
+                        return results[0][data].dataValues.BatchName;
+                    });
+                    response['BatchName'] = out;
+                }
+                if (results[1]) {
+                    var out = Object.keys(results[1]).map(function (data) {
+                        return results[1][data].dataValues.DialerState;
+                    });
+                    response['DialerState'] = out;
+                }
+                jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, response);
+                res.end(jsonString);
+            }
+        });
+
+};
+
+module.exports.CampaignDispositionReport = function (req, res) {
+    var jsonString;
+    var tenantId = req.user.tenant;
+    var companyId = req.user.company;
+    var campaignId = req.params.CampaignId;
+    var pageNo = req.params.pageNo;
+    var rowCount = req.params.rowCount;
+
+    var query = {
+        where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}, {CampaignId: campaignId}],
+        offset: ((pageNo - 1) * rowCount),
+        limit: rowCount,
+        order: '"DialoutId" DESC'
     };
 
+    if (req.params.TryCount && req.params.TryCount > 0) {
+        query.where.push({TryCount: req.params.TryCount});
+    }
+    if (req.params.DialerStatus) {
+        query.where.push({DialerStatus: req.params.DialerStatus});
+    }
+    if (req.params.Reason) {
+        query.where.push({Reason: req.params.Reason});
+    }
 
-    DbConn.DialerAgentDialInfo
-        .findAll(
-            query
-        ).then(function (cmp) {
-        jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
+    DbConn.CampDialoutInfo.findAll(query).then(function (CamObject) {
+
+        if (CamObject) {
+            jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
+        }
+        else {
+            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+        }
         res.end(jsonString);
     }).error(function (err) {
-        logger.error('GetNumberList - [%s] - [PGSQL]  failed', req.params.ResourceId, err);
         jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
         res.end(jsonString);
     });
 
+};
+
+module.exports.CampaignDispositionReport = function (req, res) {
+    var jsonString;
+    var tenantId = req.user.tenant;
+    var companyId = req.user.company;
+    var campaignId = req.params.CampaignId;
+    var pageNo = req.params.pageNo;
+    var rowCount = req.params.rowCount;
+
+    var query = {
+        where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}, {CampaignId: campaignId}],
+        offset: ((pageNo - 1) * rowCount),
+        limit: rowCount,
+        order: '"DialoutId" DESC'
+    };
+
+    if (req.params.TryCount && req.params.TryCount > 0) {
+        query.where.push({TryCount: req.params.TryCount});
+    }
+    if (req.params.DialerStatus) {
+        query.where.push({DialerStatus: req.params.DialerStatus});
+    }
+    if (req.params.Reason) {
+        query.where.push({Reason: req.params.Reason});
+    }
+
+    DbConn.CampDialoutInfo.findAll(query).then(function (CamObject) {
+
+        if (CamObject) {
+            jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
+        }
+        else {
+            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+        }
+        res.end(jsonString);
+    }).error(function (err) {
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        res.end(jsonString);
+    });
 
 };
