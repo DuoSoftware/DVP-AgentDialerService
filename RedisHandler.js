@@ -2,15 +2,18 @@
  * Created by Waruna on 5/24/2017.
  */
 
-var format = require('stringformat');
-var config = require('config');
-var redis = require('redis');
+
+
+
+/*var format = require("stringformat");*/
+var config = require("config");
+var redis = require("redis");
 var redisip = config.Redis.ip;
 var redisport = config.Redis.port;
 var redisClient = redis.createClient(redisport, redisip);
-var messageFormatter = require('dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js');
-var logger = require('dvp-common/LogHandler/CommonLogHandler.js').logger;
-var moment = require('moment');
+var messageFormatter = require("dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js");
+/*var logger = require("dvp-common/LogHandler/CommonLogHandler.js").logger;*/
+var moment = require("moment");
 
 
 redisClient.auth(config.Redis.password, function (err) {
@@ -24,6 +27,9 @@ redisClient.on("error", function (err) {
 });
 
 redisClient.on("connect", function (err) {
+    if(err){
+        console.log(err);
+    }
     redisClient.select(config.Redis.redisdb, redis.print);
 });
 
@@ -36,17 +42,17 @@ module.exports.CollectJobList = function (company, iss, jobId) {
 
     redisClient.hmset(company, [iss, iss], function (err, res) {
         if (err) {
-            console.log('Err ' + company + ' ' + iss + ' ' + jobId);
+            console.log("Err " + company + " " + iss + " " + jobId);
         } else {
-            console.log('Done ' + company + ' ' + iss + ' ' + jobId);
+            console.log("Done " + company + " " + iss + " " + jobId + " "+res);
         }
     });
 
     redisClient.hmset(iss, [jobId, jobId], function (err, res) {
         if (err) {
-            console.log('Err ...' + company + ' ' + iss + ' ' + jobId);
+            console.log("Err ..." + company + " " + iss + " " + jobId);
         } else {
-            console.log('Done ....' + company + ' ' + iss + ' ' + jobId);
+            console.log("Done ...." + company + " " + iss + " " + jobId + " "+res);
         }
     });
 
@@ -83,14 +89,20 @@ module.exports.PendingJobList = function (iss, res) {
 module.exports.DeleteJob = function (iss, jobId) {
 
     redisClient.HDEL(iss, jobId, function (err, reuslt) {
-        var jsonString;
+
         if (err) {
-            jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+            console.log(messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined));
         }
         else {
             if (reuslt == 0) {
                 redisClient.HDEL(iss, function (err, reuslt) {
-                    console.log("Complete Job");
+                    if(err){
+                        console.log(err);
+                    }
+                    else{
+                        console.log("Complete Job"+reuslt);
+                    }
+
                 });
             }
         }
@@ -113,7 +125,12 @@ module.exports.DeletePendingJob = function (req, res) {
             else {
                 if (reuslt == 0) {
                     redisClient.DEL(iss, function (err, reuslt) {
-                        console.log("Complete Job");
+                        if(err){
+                            console.log(err);
+                        }
+                        else{
+                            console.log("Complete Job"+reuslt);
+                        }
                     });
                 }
                 jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, undefined);

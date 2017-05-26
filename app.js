@@ -2,27 +2,27 @@
  * Created by Rajinda on 05/18/2017.
  */
 
-var restify = require('restify');
-var messageFormatter = require('dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js');
+var restify = require("restify");
+var messageFormatter = require("dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js");
 
-var config = require('config');
+var config = require("config");
 
 var port = config.Host.port || 3000;
 var version = config.Host.version;
-var logger = require('dvp-common/LogHandler/CommonLogHandler.js').logger;
-var agentDialHandler = require('./AgentDialHandler');
-var redisHandler = require('./RedisHandler');
+var logger = require("dvp-common/LogHandler/CommonLogHandler.js").logger;
+var agentDialHandler = require("./AgentDialHandler");
+var redisHandler = require("./RedisHandler");
 
 
 //-------------------------  Restify Server ------------------------- \\
 var RestServer = restify.createServer({
     name: "AgentDialerService",
-    version: '1.0.0'
+    version: "1.0.0"
 }, function (req, res) {
 
 });
-restify.CORS.ALLOW_HEADERS.push('api_key');
-restify.CORS.ALLOW_HEADERS.push('authorization');
+restify.CORS.ALLOW_HEADERS.push("api_key");
+restify.CORS.ALLOW_HEADERS.push("authorization");
 
 RestServer.use(restify.CORS());
 RestServer.use(restify.fullResponse());
@@ -32,9 +32,9 @@ RestServer.use(restify.acceptParser(RestServer.acceptable));
 RestServer.use(restify.queryParser());
 
 // ---------------- Security -------------------------- \\
-var jwt = require('restify-jwt');
-var secret = require('dvp-common/Authentication/Secret.js');
-var authorization = require('dvp-common/Authentication/Authorization.js');
+var jwt = require("restify-jwt");
+var secret = require("dvp-common/Authentication/Secret.js");
+var authorization = require("dvp-common/Authentication/Authorization.js");
 RestServer.use(jwt({secret: secret.Secret}));
 // ---------------- Security -------------------------- \\
 

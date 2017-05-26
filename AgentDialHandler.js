@@ -2,14 +2,14 @@
  * Created by Waruna on 5/18/2017.
  */
 
-var messageFormatter = require('dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js');
-var logger = require('dvp-common/LogHandler/CommonLogHandler.js').logger;
-var redisHandler = require('./RedisHandler');
-var DbConn = require('dvp-dbmodels');
-var nodeUuid = require('node-uuid');
-var moment = require('moment');
-var Sequelize = require('sequelize');
-var async = require('async');
+var messageFormatter = require("dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js");
+var logger = require("dvp-common/LogHandler/CommonLogHandler.js").logger;
+var redisHandler = require("./RedisHandler");
+var DbConn = require("dvp-dbmodels");
+var nodeUuid = require("node-uuid");
+var moment = require("moment");
+/*var Sequelize = require("sequelize");*/
+var async = require("async");
 
 var companyCollection = {};
 var companyUserCollection = {};
@@ -24,7 +24,7 @@ module.exports.SaveDialInfo = function (req, res) {
     if (contactList && Array.isArray(contactList)) {
         contactList.forEach(function (item) {
             dialerAgentDialInfo.push({
-                DialerState: 'New',
+                DialerState: "New",
                 AttemptCount: 0,
                 ContactNumber: item.Number,
                 ResourceName: req.body.ResourceName,
@@ -67,13 +67,13 @@ module.exports.SaveDialInfo = function (req, res) {
         dialerAgentDialInfo, {validate: false, individualHooks: true}
     ).then(function (results) {
         jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
-        logger.info('[Agent-Dial-handler.SaveDialInfo] - [PGSQL] - SaveContacts successfully.[%s] ', jsonString);
+        logger.info("[Agent-Dial-handler.SaveDialInfo] - [PGSQL] - SaveContacts successfully.[%s] ", jsonString);
     }).catch(function (err) {
         jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
-        logger.error('[Agent-Dial-handler.SaveDialInfo] - [%s] - [PGSQL] - SaveContacts failed', req.user.company, err);
+        logger.error("[Agent-Dial-handler.SaveDialInfo] - [%s] - [PGSQL] - SaveContacts failed", req.user.company, err);
 
     }).finally(function () {
-        logger.info('SaveDialInfo Done...............................');
+        logger.info("SaveDialInfo Done...............................");
         delete jobCollection[jobId];
 
         redisHandler.DeleteJob(req.user.iss, jobId);
@@ -96,7 +96,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
     var tempData = req.body.NumberList;
     var BatchName = req.body.BatchName;
     var StartDate = req.body.StartDate;
-    if (req.body.Mechanism === 'Random') {
+    if (req.body.Mechanism === "Random") {
         tempData.sort(function () {
             return 0.5 - Math.random()
         });
@@ -107,9 +107,9 @@ module.exports.AssingNumberToAgent = function (req, res) {
     while (tempData.length) {
         var agent = agentList[i];
         agentNumberList[agent.displayName] = {
-            'ResourceId': agent._id,
-            'ResourceName': agent.displayName,
-            'Data': tempData.splice(0, chunk).map(function (item) {
+            "ResourceId": agent._id,
+            "ResourceName": agent.displayName,
+            "Data": tempData.splice(0, chunk).map(function (item) {
                 return {Number: item[numberColumnName], OtherData: item[dataColumnName]}
             })
         };
@@ -127,7 +127,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
             if (item) {
                 item.Data.forEach(function (i) {
                     dialerAgentDialInfo.push({
-                        DialerState: 'New',
+                        DialerState: "New",
                         AttemptCount: 0,
                         ContactNumber: i.Number,
                         OtherData: i.OtherData,
@@ -184,11 +184,11 @@ var AddToHistory = function (item) {
         ).then(function (results) {
 
         jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
-        logger.info('AddToHistory - [PGSQL] - Updated successfully.[%s] ', jsonString);
+        logger.info("AddToHistory - [PGSQL] - Updated successfully.[%s] ", jsonString);
 
     }).error(function (err) {
         jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
-        logger.error('AddToHistory - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]', item.AgentDialNumberId, err);
+        logger.error("AddToHistory - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]", item.AgentDialNumberId, err);
     });
 };
 
@@ -223,21 +223,21 @@ module.exports.UpdateDialInfo = function (req, res) {
 
                 AddToHistory(cmp);
                 jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
-                logger.info('UpdateDialInfo - [PGSQL] - Updated successfully.[%s] ', jsonString);
+                logger.info("UpdateDialInfo - [PGSQL] - Updated successfully.[%s] ", jsonString);
                 res.end(jsonString);
 
             }).error(function (err) {
                 jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
-                logger.error('UpdateDialInfo - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]', dialId, err);
+                logger.error("UpdateDialInfo - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]", dialId, err);
                 res.end(jsonString);
             });
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("No record"), "EXCEPTION", false, undefined);
             res.end(jsonString);
         }
     }).error(function (err) {
-        logger.error('UpdateDialInfo - [%s] - [PGSQL] - UpdateDialInfo  failed', dialId, err);
+        logger.error("UpdateDialInfo - [%s] - [PGSQL] - UpdateDialInfo  failed", dialId, err);
         jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
         res.end(jsonString);
     });
@@ -249,7 +249,7 @@ module.exports.GetNumberList = function (req, res) {
 
     /*DbConn.ResAttribute.findAll({
      where: [{Status: true}, {TenantId: tenantId}, {CompanyId: companyId}], offset: ((pageNo - 1) * rowCount),
-     limit: rowCount,order: [['AttributeId', 'DESC']]
+     limit: rowCount,order: [["AttributeId", "DESC"]]
      })*/
 
     var pageNo = req.params.pageNo;
@@ -278,13 +278,13 @@ module.exports.GetNumberList = function (req, res) {
                 },
                 offset: ((pageNo - 1) * rowCount),
                 limit: rowCount,
-                order: [['StartDate', 'ASC'], ['AttemptCount', 'ASC']]
+                order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
             }
         ).then(function (cmp) {
         jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
         res.end(jsonString);
     }).error(function (err) {
-        logger.error('GetNumberList - [%s] - [PGSQL]  failed', req.params.ResourceId, err);
+        logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
         jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
         res.end(jsonString);
     });
@@ -293,17 +293,17 @@ module.exports.GetNumberList = function (req, res) {
      .findAll(
      {
      where: [{
-     DialerState: 'New'
+     DialerState: "New"
      },{Redial:true}, {StartDate: {$lte: req.params.StartDate}}, {ResourceId: req.params.ResourceId}, {TenantId: req.user.tenant}, {CompanyId: req.user.company}],
      offset: ((pageNo - 1) * rowCount),
      limit: rowCount,
-     order: [['StartDate', 'ASC'], ['AttemptCount', 'ASC']]
+     order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
      }
      ).then(function (cmp) {
      jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
      res.end(jsonString);
      }).error(function (err) {
-     logger.error('GetNumberList - [%s] - [PGSQL]  failed', req.params.ResourceId, err);
+     logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
      jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
      res.end(jsonString);
      });*/
@@ -361,19 +361,20 @@ module.exports.HeaderDetails = function (req, res) {
 
     async.parallel(functions,
         function (err, results) {
+            var out;
             if (err) {
                 jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
                 res.end(jsonString);
             } else {
                 var response = {};
                 if (results[0]) {
-                    var out = Object.keys(results[0]).map(function (data) {
+                    out = Object.keys(results[0]).map(function (data) {
                         return results[0][data].dataValues.BatchName;
                     });
                     response['BatchName'] = out;
                 }
                 if (results[1]) {
-                    var out = Object.keys(results[1]).map(function (data) {
+                    out = Object.keys(results[1]).map(function (data) {
                         return results[1][data].dataValues.DialerState;
                     });
                     response['DialerState'] = out;
