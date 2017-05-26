@@ -145,7 +145,7 @@ module.exports.DeletePendingJob = function (req, res) {
                 jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
             }
             else {
-                jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, undefined);
+                jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, reuslt);
             }
             res.end(jsonString);
         });
