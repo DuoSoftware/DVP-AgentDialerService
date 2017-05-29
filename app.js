@@ -61,10 +61,9 @@ RestServer.post("/DVP/API/" + version + "/AgentDialer/AssignNumbers", authorizat
         if (!req.user || !req.user.tenant || !req.user.company) {
             jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
             res.end(jsonString);
+        }else {
+            agentDialHandler.AssingNumberToAgent(req, res);
         }
-
-        agentDialHandler.AssingNumberToAgent(req, res);
-
     }
     catch (ex) {
 

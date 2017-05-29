@@ -78,7 +78,7 @@ module.exports.SaveDialInfo = function (req, res) {
 
         redisHandler.DeleteJob(req.user.iss, jobId);
         companyCollection[req.user.iss].splice(jobId, 1);
-        if (companyCollection[req.user.iss].length == 0) {
+        if (companyCollection[req.user.iss].length === 0) {
             delete companyCollection[req.user.iss];
         }
 

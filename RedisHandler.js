@@ -94,7 +94,7 @@ module.exports.DeleteJob = function (iss, jobId) {
             console.log(messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined));
         }
         else {
-            if (reuslt == 0) {
+            if (reuslt === 0) {
                 redisClient.HDEL(iss, function (err, reuslt) {
                     if(err){
                         console.log(err);
@@ -123,7 +123,7 @@ module.exports.DeletePendingJob = function (req, res) {
                 jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
             }
             else {
-                if (reuslt == 0) {
+                if (reuslt === 0) {
                     redisClient.DEL(iss, function (err, reuslt) {
                         if(err){
                             console.log(err);
