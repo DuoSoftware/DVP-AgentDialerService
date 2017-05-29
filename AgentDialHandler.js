@@ -385,32 +385,28 @@ module.exports.HeaderDetails = function (req, res) {
 
 };
 
-module.exports.CampaignDispositionReport = function (req, res) {
+module.exports.agentDialerDispositionSummaryReportCount = function (req, res) {
     var jsonString;
     var tenantId = req.user.tenant;
     var companyId = req.user.company;
-    var campaignId = req.params.CampaignId;
-    var pageNo = req.params.pageNo;
-    var rowCount = req.params.rowCount;
 
     var query = {
-        where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}, {CampaignId: campaignId}],
-        offset: ((pageNo - 1) * rowCount),
-        limit: rowCount,
-        order: '"DialoutId" DESC'
+        where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}]
     };
 
+
+
     if (req.params.TryCount && req.params.TryCount > 0) {
-        query.where.push({TryCount: req.params.TryCount});
+        query.where.push({AttemptCount: { $gte: req.params.TryCount   }});
     }
-    if (req.params.DialerStatus) {
-        query.where.push({DialerStatus: req.params.DialerStatus});
+    if (req.params.DialerState) {
+        query.where.push({DialerState: req.params.DialerState});
     }
-    if (req.params.Reason) {
-        query.where.push({Reason: req.params.Reason});
+    if (req.params.BatchName) {
+        query.where.push({BatchName: req.params.BatchName});
     }
 
-    DbConn.CampDialoutInfo.findAll(query).then(function (CamObject) {
+    DbConn.DialerAgentDialInfo.count(query).then(function (CamObject) {
 
         if (CamObject) {
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
@@ -426,32 +422,112 @@ module.exports.CampaignDispositionReport = function (req, res) {
 
 };
 
-module.exports.CampaignDispositionReport = function (req, res) {
+module.exports.agentDialerDispositionSummaryReport = function (req, res) {
     var jsonString;
     var tenantId = req.user.tenant;
     var companyId = req.user.company;
-    var campaignId = req.params.CampaignId;
     var pageNo = req.params.pageNo;
     var rowCount = req.params.rowCount;
 
     var query = {
-        where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}, {CampaignId: campaignId}],
+        where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}],
         offset: ((pageNo - 1) * rowCount),
         limit: rowCount,
-        order: '"DialoutId" DESC'
+        order: '"AgentDialNumberId" DESC'
     };
 
+
+
     if (req.params.TryCount && req.params.TryCount > 0) {
-        query.where.push({TryCount: req.params.TryCount});
+        query.where.push({AttemptCount: { $gte: req.params.TryCount   }});
     }
-    if (req.params.DialerStatus) {
-        query.where.push({DialerStatus: req.params.DialerStatus});
+    if (req.params.DialerState) {
+        query.where.push({DialerState: req.params.DialerState});
     }
-    if (req.params.Reason) {
-        query.where.push({Reason: req.params.Reason});
+    if (req.params.BatchName) {
+        query.where.push({BatchName: req.params.BatchName});
     }
 
-    DbConn.CampDialoutInfo.findAll(query).then(function (CamObject) {
+    DbConn.DialerAgentDialInfo.findAll(query).then(function (CamObject) {
+
+        if (CamObject) {
+            jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
+        }
+        else {
+            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+        }
+        res.end(jsonString);
+    }).error(function (err) {
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        res.end(jsonString);
+    });
+
+};
+
+module.exports.agentDialerDispositionDetailsReportCount = function (req, res) {
+    var jsonString;
+    var tenantId = req.user.tenant;
+    var companyId = req.user.company;
+
+    var query = {
+        where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}]
+    };
+
+
+
+    if (req.params.TryCount && req.params.TryCount > 0) {
+        query.where.push({AttemptCount: { $gte: req.params.TryCount   }});
+    }
+    if (req.params.DialerState) {
+        query.where.push({DialerState: req.params.DialerState});
+    }
+    if (req.params.BatchName) {
+        query.where.push({BatchName: req.params.BatchName});
+    }
+
+    DbConn.DialerAgentDialInfoHistory.count(query).then(function (CamObject) {
+
+        if (CamObject) {
+            jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
+        }
+        else {
+            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+        }
+        res.end(jsonString);
+    }).error(function (err) {
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        res.end(jsonString);
+    });
+
+};
+
+module.exports.agentDialerDispositionDetailsReport = function (req, res) {
+    var jsonString;
+    var tenantId = req.user.tenant;
+    var companyId = req.user.company;
+    var pageNo = req.params.pageNo;
+    var rowCount = req.params.rowCount;
+
+    var query = {
+        where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}],
+        offset: ((pageNo - 1) * rowCount),
+        limit: rowCount,
+        order: '"AgentDialHistoryId" DESC'
+    };
+
+
+
+    if (req.params.TryCount && req.params.TryCount > 0) {
+        query.where.push({AttemptCount: { $gte: req.params.TryCount   }});
+    }
+    if (req.params.DialerState) {
+        query.where.push({DialerState: req.params.DialerState});
+    }
+    if (req.params.BatchName) {
+        query.where.push({BatchName: req.params.BatchName});
+    }
+
+    DbConn.DialerAgentDialInfoHistory.findAll(query).then(function (CamObject) {
 
         if (CamObject) {
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
