@@ -233,7 +233,7 @@ module.exports.UpdateDialInfo = function (req, res) {
             });
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error("No record"), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("No record"), "EXCEPTION", false, null);
             res.end(jsonString);
         }
     }).error(function (err) {
