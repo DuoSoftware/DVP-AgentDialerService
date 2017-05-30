@@ -15,7 +15,8 @@ var companyCollection = {};
 var companyUserCollection = {};
 var jobCollection = {};
 
-function saveContactBulk() {
+
+function saveContactBulk(req, jobId) {
     var contactList = req.body.ContactList;
     var dialerAgentDialInfo = [];
     var batchName = req.body.BatchName;
@@ -83,17 +84,63 @@ function saveContactBulk() {
 module.exports.SaveDialInfo = function (req, res) {
 
 
-
     if (!req.user || !req.user.tenant || !req.user.company) {
         throw new Error("invalid tenant or company.");
     }
     else {
         var jobId = req.body.BatchName + "_-_" + nodeUuid.v1();
-        saveContactBulk();
+        saveContactBulk(req, jobId);
+
         res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, jobCollection[jobId]));
     }
 
 };
+
+function saveNumbers(req, agentNumberList, StartDate, BatchName, res) {
+    var tenant = req.user.tenant;
+    var company = req.user.company;
+
+    var asyncvalidateUserAndGroupTasks = [];
+
+    async.forEach(agentNumberList, function (item, next) {
+        if (item.Data) {
+            var dialerAgentDialInfo = [];
+            if (item) {
+                item.Data.forEach(function (i) {
+                    dialerAgentDialInfo.push({
+                        DialerState: "New",
+                        AttemptCount: 0,
+                        ContactNumber: i.Number,
+                        OtherData: i.OtherData,
+                        ResourceName: item.ResourceName,
+                        ResourceId: item.ResourceId,
+                        StartDate: StartDate,
+                        BatchName: BatchName,
+                        TenantId: tenant,
+                        CompanyId: company
+                    })
+                });
+            }
+
+            asyncvalidateUserAndGroupTasks.push(function (callback) {
+                DbConn.DialerAgentDialInfo.bulkCreate(
+                    dialerAgentDialInfo, {validate: false, individualHooks: true}
+                ).then(function (results) {
+                    callback(undefined, results);
+                }).catch(function (err) {
+                    callback(err, undefined);
+                }).finally(function () {
+                    console.log("Job Done ......" + next);
+                });
+            });
+        }
+    });
+
+    async.parallel(asyncvalidateUserAndGroupTasks, function (err, results) {
+        console.log("Task Complete.........................");
+        res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, results));
+    });
+}
 
 module.exports.AssingNumberToAgent = function (req, res) {
 
@@ -127,53 +174,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
         i++;
     }
 
-    function saveNumbers() {
-        var tenant = req.user.tenant;
-        var company = req.user.company;
-
-        var asyncvalidateUserAndGroupTasks = [];
-
-        async.forEach(agentNumberList, function (item, next) {
-            if (item.Data) {
-                var dialerAgentDialInfo = [];
-                if (item) {
-                    item.Data.forEach(function (i) {
-                        dialerAgentDialInfo.push({
-                            DialerState: "New",
-                            AttemptCount: 0,
-                            ContactNumber: i.Number,
-                            OtherData: i.OtherData,
-                            ResourceName: item.ResourceName,
-                            ResourceId: item.ResourceId,
-                            StartDate: StartDate,
-                            BatchName: BatchName,
-                            TenantId: tenant,
-                            CompanyId: company
-                        })
-                    });
-                }
-
-                asyncvalidateUserAndGroupTasks.push(function (callback) {
-                    DbConn.DialerAgentDialInfo.bulkCreate(
-                        dialerAgentDialInfo, {validate: false, individualHooks: true}
-                    ).then(function (results) {
-                        callback(undefined, results);
-                    }).catch(function (err) {
-                        callback(err, undefined);
-                    }).finally(function () {
-                        console.log("Job Done ......" + next);
-                    });
-                });
-            }
-        });
-
-        async.parallel(asyncvalidateUserAndGroupTasks, function (err, results) {
-            console.log("Task Complete.........................");
-            res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, results));
-        });
-    }
-
-    saveNumbers();
+    saveNumbers(req, agentNumberList, StartDate, BatchName, res);
 
 };
 
@@ -325,6 +326,10 @@ module.exports.GetNumberList = function (req, res) {
 };
 
 module.exports.PendingJobList = function (req, res) {
+    if (!req.user || !req.user.tenant || !req.user.company) {
+        throw new Error("invalid tenant or company.");
+    }
+
     redisHandler.PendingJobList(req.user.iss, res);
     /*var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, companyCollection[req.user.iss]);
      res.end(jsonString);*/
