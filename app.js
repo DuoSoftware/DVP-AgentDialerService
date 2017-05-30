@@ -265,6 +265,7 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition/Count', 
     resource: "myUserProfile",
     action: "read"
 }), function (req, res, next) {
+    var jsonString;
     try {
 
         logger.info('[agentDialerDispositionSummaryReportCount] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
@@ -281,7 +282,7 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition/Count', 
     catch (ex) {
 
         logger.error('[agentDialerDispositionSummaryReportCount] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
-        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
         logger.debug('[agentDialerDispositionSummaryReportCount] - Request response : %s ', jsonString);
         res.end(jsonString);
     }
@@ -292,6 +293,7 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition', author
     resource: "myUserProfile",
     action: "read"
 }), function (req, res, next) {
+    var jsonString;
     try {
 
         logger.info('[CampaignDispositionReport] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
@@ -308,7 +310,7 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition', author
     catch (ex) {
 
         logger.error("[CampaignDispositionReport] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
         logger.debug("[CampaignDispositionReport] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -319,6 +321,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/
     resource: "myUserProfile",
     action: "read"
 }), function (req, res, next) {
+    var jsonString;
     try {
 
         logger.info("[agentDialerDispositionDetailsReportCount] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
@@ -335,7 +338,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/
     catch (ex) {
 
         logger.error("[agentDialerDispositionDetailsReportCount] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
         logger.debug("[agentDialerDispositionDetailsReportCount] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -347,6 +350,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/" +
     resource: "myUserProfile",
     action: "read"
 }), function (req, res, next) {
+    var jsonString;
     try {
 
         logger.info("[agentDialerDispositionDetailsReport] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
@@ -362,7 +366,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/" +
     catch (ex) {
 
         logger.error("[agentDialerDispositionDetailsReport] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
         logger.debug("[agentDialerDispositionDetailsReport] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
