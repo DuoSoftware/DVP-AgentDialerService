@@ -277,66 +277,51 @@ module.exports.GetNumberList = function (req, res) {
 
     var jsonString;
 
-    /*DbConn.ResAttribute.findAll({
-     where: [{Status: true}, {TenantId: tenantId}, {CompanyId: companyId}], offset: ((pageNo - 1) * rowCount),
-     limit: rowCount,order: [["AttributeId", "DESC"]]
-     })*/
+    function getNumbers() {
+        var pageNo = req.params.pageNo;
+        var rowCount = req.params.rowCount;
 
-    var pageNo = req.params.pageNo;
-    var rowCount = req.params.rowCount;
-
-    DbConn.DialerAgentDialInfo
-        .findAll(
-            {
-                where: {
-                    StartDate: {$lte: req.params.StartDate},
-                    ResourceId: req.params.ResourceId,
-                    TenantId: req.user.tenant,
-                    CompanyId: req.user.company,
-                    $or: [
-                        {
-                            Redial: {
-                                $eq: true
+        DbConn.DialerAgentDialInfo
+            .findAll(
+                {
+                    where: {
+                        StartDate: {$lte: req.params.StartDate},
+                        ResourceId: req.params.ResourceId,
+                        TenantId: req.user.tenant,
+                        CompanyId: req.user.company,
+                        $or: [
+                            {
+                                Redial: {
+                                    $eq: true
+                                }
+                            },
+                            {
+                                DialerState: {
+                                    $eq: "New"
+                                }
                             }
-                        },
-                        {
-                            DialerState: {
-                                $eq: "New"
-                            }
-                        }
-                    ]
-                },
-                offset: ((pageNo - 1) * rowCount),
-                limit: rowCount,
-                order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
-            }
-        ).then(function (cmp) {
-        jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
-        res.end(jsonString);
-    }).error(function (err) {
-        logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
-        res.end(jsonString);
-    });
+                        ]
+                    },
+                    offset: ((pageNo - 1) * rowCount),
+                    limit: rowCount,
+                    order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
+                }
+            ).then(function (cmp) {
+            jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
+            res.end(jsonString);
+        }).error(function (err) {
+            logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
+            jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
+            res.end(jsonString);
+        });
+    }
 
-    /*DbConn.DialerAgentDialInfo
-     .findAll(
-     {
-     where: [{
-     DialerState: "New"
-     },{Redial:true}, {StartDate: {$lte: req.params.StartDate}}, {ResourceId: req.params.ResourceId}, {TenantId: req.user.tenant}, {CompanyId: req.user.company}],
-     offset: ((pageNo - 1) * rowCount),
-     limit: rowCount,
-     order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
-     }
-     ).then(function (cmp) {
-     jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
-     res.end(jsonString);
-     }).error(function (err) {
-     logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
-     jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
-     res.end(jsonString);
-     });*/
+    if (!req.user || !req.user.tenant || !req.user.company) {
+        throw new Error("invalid tenant or company.");
+    }
+    else {
+        getNumbers();
+    }
 };
 
 module.exports.pendingJobList = function (req, res) {
