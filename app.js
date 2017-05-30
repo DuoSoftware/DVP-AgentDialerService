@@ -204,13 +204,6 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/HeaderDetails", authorizati
     try {
 
         logger.info("[HeaderDetails] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
-
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
-            res.end(jsonString);
-
-        }
-
         agentDialHandler.HeaderDetails(req, res);
 
     }
@@ -233,13 +226,8 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition/Count", 
 
         logger.info("[agentDialerDispositionSummaryReportCount] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
-            res.end(jsonString);
 
-        }
-
-        agentDialHandler.agentDialerDispositionSummaryReportCount(req,res);
+        agentDialHandler.agentDialerDispositionSummaryReportCount(req, res);
 
     }
     catch (ex) {
@@ -261,13 +249,8 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition", author
 
         logger.info("[CampaignDispositionReport] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
-            res.end(jsonString);
 
-        }
-
-        agentDialHandler.agentDialerDispositionSummaryReport(req,res);
+        agentDialHandler.agentDialerDispositionSummaryReport(req, res);
 
     }
     catch (ex) {
@@ -289,13 +272,8 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/
 
         logger.info("[agentDialerDispositionDetailsReportCount] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
-            res.end(jsonString);
 
-        }
-
-        agentDialHandler.agentDialerDispositionDetailsReportCount(req,res);
+        agentDialHandler.agentDialerDispositionDetailsReportCount(req, res);
 
     }
     catch (ex) {
@@ -318,12 +296,8 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/" +
 
         logger.info("[agentDialerDispositionDetailsReport] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
-            res.end(jsonString);
-        }
 
-        agentDialHandler.agentDialerDispositionDetailsReport(req,res);
+        agentDialHandler.agentDialerDispositionDetailsReport(req, res);
 
     }
     catch (ex) {
