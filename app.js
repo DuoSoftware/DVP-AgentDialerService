@@ -57,13 +57,8 @@ RestServer.post("/DVP/API/" + version + "/AgentDialer/AssignNumbers", authorizat
     try {
 
         logger.info("[AssingNumberToAgent] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
+        agentDialHandler.AssingNumberToAgent(req, res);
 
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
-            res.end(jsonString);
-        }else {
-            agentDialHandler.AssingNumberToAgent(req, res);
-        }
     }
     catch (ex) {
 

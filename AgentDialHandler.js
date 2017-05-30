@@ -20,7 +20,7 @@ module.exports.SaveDialInfo = function (req, res) {
     var contactList = req.body.ContactList;
 
     var dialerAgentDialInfo = [];
-
+    var batchName = req.body.BatchName;
     if (contactList && Array.isArray(contactList)) {
         contactList.forEach(function (item) {
             dialerAgentDialInfo.push({
@@ -31,18 +31,18 @@ module.exports.SaveDialInfo = function (req, res) {
                 ResourceId: req.params.ResourceId,
                 StartDate: req.body.StartDate,
                 OtherData: item.OtherData,
-                BatchName: req.body.BatchName,
+                BatchName: batchName,
                 TenantId: req.user.tenant,
                 CompanyId: req.user.company
             })
         });
     }
 
-    var jobId = req.body.BatchName + "_-_" + nodeUuid.v1();
+    var jobId = batchName + "_-_" + nodeUuid.v1();
 
 
     jobCollection[jobId] = {
-        BatchName: req.body.BatchName,
+        BatchName: batchName,
         ResourceName: req.body.ResourceName,
         ResourceId: req.params.ResourceId,
         Status: "Pending",
@@ -89,6 +89,10 @@ module.exports.SaveDialInfo = function (req, res) {
 
 module.exports.AssingNumberToAgent = function (req, res) {
 
+    if (!req.user || !req.user.tenant || !req.user.company) {
+        res.end(messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null));
+        return;
+    }
     var agentNumberList = {};
     var agentList = req.body.AgentList;
     var numberColumnName = req.body.NumberColumnName;
@@ -149,7 +153,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
                 }).catch(function (err) {
                     callback(err, undefined);
                 }).finally(function () {
-                    console.log("Job Done ......" +next);
+                    console.log("Job Done ......" + next);
                 });
             });
         }
@@ -396,9 +400,8 @@ module.exports.agentDialerDispositionSummaryReportCount = function (req, res) {
     };
 
 
-
     if (req.params.TryCount && req.params.TryCount > 0) {
-        query.where.push({AttemptCount: { $gte: req.params.TryCount   }});
+        query.where.push({AttemptCount: {$gte: req.params.TryCount}});
     }
     if (req.params.DialerState) {
         query.where.push({DialerState: req.params.DialerState});
@@ -438,9 +441,8 @@ module.exports.agentDialerDispositionSummaryReport = function (req, res) {
     };
 
 
-
     if (req.params.TryCount && req.params.TryCount > 0) {
-        query.where.push({AttemptCount: { $gte: req.params.TryCount   }});
+        query.where.push({AttemptCount: {$gte: req.params.TryCount}});
     }
     if (req.params.DialerState) {
         query.where.push({DialerState: req.params.DialerState});
@@ -475,9 +477,8 @@ module.exports.agentDialerDispositionDetailsReportCount = function (req, res) {
     };
 
 
-
     if (req.params.TryCount && req.params.TryCount > 0) {
-        query.where.push({AttemptCount: { $gte: req.params.TryCount   }});
+        query.where.push({AttemptCount: {$gte: req.params.TryCount}});
     }
     if (req.params.DialerState) {
         query.where.push({DialerState: req.params.DialerState});
@@ -517,9 +518,8 @@ module.exports.agentDialerDispositionDetailsReport = function (req, res) {
     };
 
 
-
     if (req.params.TryCount && req.params.TryCount > 0) {
-        query.where.push({AttemptCount: { $gte: req.params.TryCount   }});
+        query.where.push({AttemptCount: {$gte: req.params.TryCount}});
     }
     if (req.params.DialerState) {
         query.where.push({DialerState: req.params.DialerState});
