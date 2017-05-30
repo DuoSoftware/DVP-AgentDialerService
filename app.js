@@ -119,13 +119,6 @@ RestServer.del("/DVP/API/" + version + "/AgentDialer/Job", authorization({
     try {
 
         logger.info("[CheckStatus] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
-
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
-            res.end(jsonString);
-        }
-
-
         redisHandler.DeletePendingJob(req, res);
 
     }

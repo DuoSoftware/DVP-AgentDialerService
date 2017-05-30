@@ -63,7 +63,7 @@ function saveContactBulk(req, jobId) {
     DbConn.DialerAgentDialInfo.bulkCreate(
         dialerAgentDialInfo, {validate: false, individualHooks: true}
     ).then(function (results) {
-        jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
+        jsonString = messageFormatter.FormatMessage(null, "SUCCESS", true, results);
         logger.info("[Agent-Dial-handler.SaveDialInfo] - [PGSQL] - SaveContacts successfully.[%s] ", jsonString);
     }).catch(function (err) {
         jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
@@ -92,7 +92,7 @@ module.exports.SaveDialInfo = function (req, res) {
         var jobId = req.body.BatchName + "_-_" + nodeUuid.v1();
         saveContactBulk(req, jobId);
 
-        res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, jobCollection[jobId.toString()]));
+        res.end(messageFormatter.FormatMessage(null, "SUCCESS", true, jobCollection[jobId.toString()]));
     }
 
 };
@@ -121,7 +121,7 @@ function saveNumbers(req, agentNumberList, res) {
                         BatchName: batchName,
                         TenantId: tenant,
                         CompanyId: company
-                    })
+                    });
                 });
             }
             console.log(next);
@@ -130,19 +130,19 @@ function saveNumbers(req, agentNumberList, res) {
                 DbConn.DialerAgentDialInfo.bulkCreate(
                     dialerAgentDialInfo, {validate: false, individualHooks: true}
                 ).then(function (results) {
-                    callback(undefined, results);
+                    callback(null, results);
                 }).catch(function (err) {
-                    callback(err, undefined);
+                    callback(err, null);
                 }).finally(function () {
-                    console.log("Job Done ...... ");
+                    console.log("Job Done!");
                 });
             });
         }
     });
 
     async.parallel(asyncvalidateUserAndGroupTasks, function (err, results) {
-        console.log("Task Complete.........................");
-        res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, results));
+        console.log("Task Complete!");
+        res.end(messageFormatter.FormatMessage(null, "SUCCESS", true, results));
     });
 }
 
@@ -172,7 +172,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
                 "ResourceId": agent._id,
                 "ResourceName": agent.displayName,
                 "Data": tempData.splice(0, chunk).map(function (item) {
-                    return {Number: item[numberColumnName], OtherData: item[dataColumnName]}
+                    return {Number: item[numberColumnName], OtherData: item[dataColumnName]};
                 })
             };
             i++;
@@ -395,13 +395,13 @@ module.exports.HeaderDetails = function (req, res) {
                 var response = {};
                 if (results[0]) {
                     out = Object.keys(results[0]).map(function (data) {
-                        return results[0][data].dataValues.BatchName;
+                        return results[0][data.toString()].dataValues.BatchName;
                     });
                     response["BatchName"] = out;
                 }
                 if (results[1]) {
                     out = Object.keys(results[1]).map(function (data) {
-                        return results[1][data].dataValues.DialerState;
+                        return results[1][data.toString()].dataValues.DialerState;
                     });
                     response["DialerState"] = out;
                 }
