@@ -83,7 +83,7 @@ RestServer.post("/DVP/API/" + version + "/AgentDialer/Resource/:ResourceId/Dial"
     catch (ex) {
 
         logger.error("[SaveDialInfo] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[SaveDialInfo] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -104,7 +104,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Job", authorization({
     catch (ex) {
 
         logger.error("[CheckStatus] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[CheckStatus] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -125,7 +125,7 @@ RestServer.del("/DVP/API/" + version + "/AgentDialer/Job", authorization({
     catch (ex) {
 
         logger.error("[CheckStatus] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[CheckStatus] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -140,19 +140,13 @@ RestServer.put("/DVP/API/" + version + "/AgentDialer/Number/:AgentDialNumberId/S
     try {
 
         logger.info("[UpdateDialInfo] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
-
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
-            res.end(jsonString);
-        }
-
         agentDialHandler.UpdateDialInfo(req, res);
 
     }
     catch (ex) {
 
         logger.error("[UpdateDialInfo] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[UpdateDialInfo] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -169,7 +163,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Job/:jobId", authorization(
         logger.info("[CheckStatus] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
             res.end(jsonString);
         }
 
@@ -179,7 +173,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Job/:jobId", authorization(
     catch (ex) {
 
         logger.error("[CheckStatus] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[CheckStatus] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -196,7 +190,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Resource/:ResourceId/Number
         logger.info("[GetNumberList] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
             res.end(jsonString);
         }
 
@@ -206,7 +200,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Resource/:ResourceId/Number
     catch (ex) {
 
         logger.error("[GetNumberList] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[GetNumberList] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -223,7 +217,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/HeaderDetails", authorizati
         logger.info("[HeaderDetails] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
             res.end(jsonString);
 
         }
@@ -234,7 +228,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/HeaderDetails", authorizati
     catch (ex) {
 
         logger.error("[HeaderDetails] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[HeaderDetails] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -251,7 +245,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition/Count", 
         logger.info("[agentDialerDispositionSummaryReportCount] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
             res.end(jsonString);
 
         }
@@ -262,7 +256,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition/Count", 
     catch (ex) {
 
         logger.error("[agentDialerDispositionSummaryReportCount] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[agentDialerDispositionSummaryReportCount] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -279,7 +273,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition", author
         logger.info("[CampaignDispositionReport] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
             res.end(jsonString);
 
         }
@@ -290,7 +284,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition", author
     catch (ex) {
 
         logger.error("[CampaignDispositionReport] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[CampaignDispositionReport] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -307,7 +301,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/
         logger.info("[agentDialerDispositionDetailsReportCount] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
             res.end(jsonString);
 
         }
@@ -318,7 +312,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/
     catch (ex) {
 
         logger.error("[agentDialerDispositionDetailsReportCount] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[agentDialerDispositionDetailsReportCount] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
@@ -336,7 +330,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/" +
         logger.info("[agentDialerDispositionDetailsReport] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
             res.end(jsonString);
         }
 
@@ -346,7 +340,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/" +
     catch (ex) {
 
         logger.error("[agentDialerDispositionDetailsReport] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
-        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
         logger.debug("[agentDialerDispositionDetailsReport] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
