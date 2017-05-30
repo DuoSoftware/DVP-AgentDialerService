@@ -2,6 +2,8 @@
  * Created by Waruna on 5/18/2017.
  */
 
+'use strict';
+
 var messageFormatter = require("dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js");
 var logger = require("dvp-common/LogHandler/CommonLogHandler.js").logger;
 var redisHandler = require("./RedisHandler");
@@ -96,7 +98,7 @@ module.exports.SaveDialInfo = function (req, res) {
 
 };
 
-function saveNumbers(req, agentNumberList, StartDate, BatchName, res) {
+function saveNumbers(req, agentNumberList, startDate, batchName, res) {
     var tenant = req.user.tenant;
     var company = req.user.company;
 
@@ -114,8 +116,8 @@ function saveNumbers(req, agentNumberList, StartDate, BatchName, res) {
                         OtherData: i.OtherData,
                         ResourceName: item.ResourceName,
                         ResourceId: item.ResourceId,
-                        StartDate: StartDate,
-                        BatchName: BatchName,
+                        StartDate: startDate,
+                        BatchName: batchName,
                         TenantId: tenant,
                         CompanyId: company
                     })
@@ -130,7 +132,7 @@ function saveNumbers(req, agentNumberList, StartDate, BatchName, res) {
                 }).catch(function (err) {
                     callback(err, undefined);
                 }).finally(function () {
-                    console.log("Job Done ......" + next);
+                    console.log("Job Done ...... ", next);
                 });
             });
         }
@@ -157,7 +159,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
         var StartDate = req.body.StartDate;
         if (req.body.Mechanism === "Random") {
             tempData.sort(function () {
-                return 0.5 - Math.random()
+                return 0.5 - Math.random();
             });
         }
 
@@ -181,7 +183,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
 
 };
 
-var AddToHistory = function (item) {
+var addToHistory = function (item) {
 
     var jsonString;
 
@@ -203,11 +205,11 @@ var AddToHistory = function (item) {
         ).then(function (results) {
 
         jsonString = messageFormatter.FormatMessage(null, "SUCCESS", true, results);
-        logger.info("AddToHistory - [PGSQL] - Updated successfully.[%s] ", jsonString);
+        logger.info("addToHistory - [PGSQL] - Updated successfully.[%s] ", jsonString);
 
     }).error(function (err) {
         jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
-        logger.error("AddToHistory - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]", item.AgentDialNumberId, err);
+        logger.error("addToHistory - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]", item.AgentDialNumberId, err);
     });
 };
 
@@ -240,7 +242,7 @@ module.exports.UpdateDialInfo = function (req, res) {
                 ).then(function (results) {
 
 
-                AddToHistory(cmp);
+                addToHistory(cmp);
                 jsonString = messageFormatter.FormatMessage(null, "SUCCESS", true, results);
                 logger.info("UpdateDialInfo - [PGSQL] - Updated successfully.[%s] ", jsonString);
                 res.end(jsonString);
@@ -354,14 +356,14 @@ module.exports.HeaderDetails = function (req, res) {
 
     var querys = [{
         attributes: [
-            [DbConn.SequelizeConn.fn('DISTINCT', DbConn.SequelizeConn.col('"BatchName"')), 'BatchName']
+            [DbConn.SequelizeConn.fn("DISTINCT", DbConn.SequelizeConn.col("BatchName")), "BatchName"]
         ],
         where: [{TenantId: req.user.tenant},
             {CompanyId: req.user.company}]
     },
         {
             attributes: [
-                [DbConn.SequelizeConn.fn('DISTINCT', DbConn.SequelizeConn.col("DialerState")), 'DialerState']
+                [DbConn.SequelizeConn.fn("DISTINCT", DbConn.SequelizeConn.col("DialerState")), "DialerState"]
             ],
             where: [{TenantId: req.user.tenant},
                 {CompanyId: req.user.company}]
@@ -394,13 +396,13 @@ module.exports.HeaderDetails = function (req, res) {
                     out = Object.keys(results[0]).map(function (data) {
                         return results[0][data].dataValues.BatchName;
                     });
-                    response['BatchName'] = out;
+                    response["BatchName"] = out;
                 }
                 if (results[1]) {
                     out = Object.keys(results[1]).map(function (data) {
                         return results[1][data].dataValues.DialerState;
                     });
-                    response['DialerState'] = out;
+                    response["DialerState"] = out;
                 }
                 jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, response);
                 res.end(jsonString);
@@ -435,7 +437,7 @@ module.exports.agentDialerDispositionSummaryReportCount = function (req, res) {
             jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, CamObject);
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
+            jsonString = messageFormatter.FormatMessage(new Error("No record"), "EXCEPTION", false, null);
         }
         res.end(jsonString);
     }).error(function (err) {
@@ -476,7 +478,7 @@ module.exports.agentDialerDispositionSummaryReport = function (req, res) {
             jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, CamObject);
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
+            jsonString = messageFormatter.FormatMessage(new Error("No record"), "EXCEPTION", false, null);
         }
         res.end(jsonString);
     }).error(function (err) {
@@ -512,7 +514,7 @@ module.exports.agentDialerDispositionDetailsReportCount = function (req, res) {
             jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, CamObject);
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
+            jsonString = messageFormatter.FormatMessage(new Error("No record"), "EXCEPTION", false, null);
         }
         res.end(jsonString);
     }).error(function (err) {
@@ -533,7 +535,7 @@ module.exports.agentDialerDispositionDetailsReport = function (req, res) {
         where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}],
         offset: ((pageNo - 1) * rowCount),
         limit: rowCount,
-        order: [["AgentDialHistoryId", "DESC"]]  //'"AgentDialHistoryId" DESC'
+        order: [["AgentDialHistoryId", "DESC"]]  //""AgentDialHistoryId" DESC"
     };
 
 
@@ -553,7 +555,7 @@ module.exports.agentDialerDispositionDetailsReport = function (req, res) {
             jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, CamObject);
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
+            jsonString = messageFormatter.FormatMessage(new Error("No record"), "EXCEPTION", false, null);
         }
         res.end(jsonString);
     }).error(function (err) {

@@ -17,16 +17,16 @@ var messageFormatter = require("dvp-common/CommonMessageGenerator/ClientMessageJ
 redisClient.auth(config.Redis.password, function (err) {
     /*if (err)
      throw err;*/
-    console.log("Redis Auth error  {0}", err);
+    console.error("Redis Auth error ", err);
 });
 
 redisClient.on("error", function (err) {
-    console.log("Redis connection error  {0}", err);
+    console.error("Redis connection error ", err);
 });
 
 redisClient.on("connect", function (err) {
     if(err){
-        console.log(err);
+        console.error(err);
     }
     redisClient.select(config.Redis.redisdb, redis.print);
 });
@@ -40,17 +40,17 @@ module.exports.CollectJobList = function (company, iss, jobId) {
 
     redisClient.hmset(company, [iss, iss], function (err, res) {
         if (err) {
-            console.log("Err {0} {1} {2}",company,iss,jobId);
+            console.error("Err :", jobId);
         } else {
-            console.log("Done {0} {1} {2} {3}", company, iss,jobId,res);
+            console.log("Done ", res);
         }
     });
 
     redisClient.hmset(iss, [jobId, jobId], function (err, res) {
         if (err) {
-            console.log("Err {0} {1} {2}",company,iss,jobId);
+            console.error("Err :", jobId);
         } else {
-            console.log("Done {0} {1} {2} {3}", company, iss,jobId,res);
+            console.log("Done ", res);
         }
     });
 
@@ -95,10 +95,10 @@ module.exports.DeleteJob = function (iss, jobId) {
             if (reuslt === 0) {
                 redisClient.HDEL(iss, function (err, reuslt) {
                     if(err){
-                        console.log(err);
+                        console.error(err);
                     }
                     else{
-                        console.log("Complete Job"+reuslt);
+                        console.log("Complete Job", reuslt);
                     }
 
                 });
@@ -124,10 +124,10 @@ module.exports.DeletePendingJob = function (req, res) {
                 if (reuslt === 0) {
                     redisClient.DEL(iss, function (err, reuslt) {
                         if(err){
-                            console.log(err);
+                            console.error(err);
                         }
                         else{
-                            console.log("Complete Job"+reuslt);
+                            console.log("Complete Job", reuslt);
                         }
                     });
                 }

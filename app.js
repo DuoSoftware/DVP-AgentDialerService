@@ -40,7 +40,7 @@ RestServer.use(jwt({secret: secret.Secret}));
 
 //Server listen
 RestServer.listen(port, function () {
-    console.log('%s listening at %s', RestServer.name, RestServer.url);
+    console.log("%s listening at %s", RestServer.name, RestServer.url);
 
 });
 
@@ -248,14 +248,14 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/HeaderDetails", authorizati
     return next();
 });
 
-RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition/Count', authorization({
+RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition/Count", authorization({
     resource: "myUserProfile",
     action: "read"
 }), function (req, res, next) {
     var jsonString;
     try {
 
-        logger.info('[agentDialerDispositionSummaryReportCount] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+        logger.info("[agentDialerDispositionSummaryReportCount] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
             jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
@@ -268,22 +268,22 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition/Count', 
     }
     catch (ex) {
 
-        logger.error('[agentDialerDispositionSummaryReportCount] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        logger.error("[agentDialerDispositionSummaryReportCount] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
         jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
-        logger.debug('[agentDialerDispositionSummaryReportCount] - Request response : %s ', jsonString);
+        logger.debug("[agentDialerDispositionSummaryReportCount] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
     return next();
 });
 
-RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition', authorization({
+RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition", authorization({
     resource: "myUserProfile",
     action: "read"
 }), function (req, res, next) {
     var jsonString;
     try {
 
-        logger.info('[CampaignDispositionReport] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+        logger.info("[CampaignDispositionReport] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
         if (!req.user || !req.user.tenant || !req.user.company) {
             jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
@@ -362,36 +362,4 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/" +
 
 //------------------------- Agent Dial Handler ------------------------- \\
 
-/*
-//------------------------- Crossdomain ------------------------- \\
 
-function Crossdomain(req, res, next) {
-
-
-    var xml = '<?xml version=""1.0""?><!DOCTYPE cross-domain-policy SYSTEM ""http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd""> <cross-domain-policy>    <allow-access-from domain=""*"" />        </cross-domain-policy>';
-
-    /!*var xml='<?xml version="1.0"?>\n';
-
-     xml+= '<!DOCTYPE cross-domain-policy SYSTEM "/xml/dtds/cross-domain-policy.dtd">\n';
-     xml+='';
-     xml+=' \n';
-     xml+='\n';
-     xml+='';*!/
-    req.setEncoding("utf8");
-    res.end(xml);
-    return next();
-}
-
-function Clientaccesspolicy(req, res, next) {
-
-
-    var xml = '<?xml version="1.0" encoding="utf-8" ?>       <access-policy>        <cross-domain-access>        <policy>        <allow-from http-request-headers="*" http-methods="*">        <domain uri="*"/>        </allow-from>        <grant-to>        <resource include-subpaths="true" path="/"/>        </grant-to>        </policy>        </cross-domain-access>        </access-policy>';
-    req.setEncoding('utf8');
-    res.end(xml);
-    return next();
-}
-
-RestServer.get("/crossdomain.xml", Crossdomain);
-RestServer.get("/clientaccesspolicy.xml", Clientaccesspolicy);
-
-//------------------------- End Crossdomain ------------------------- \\*/
