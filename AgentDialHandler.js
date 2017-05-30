@@ -15,80 +15,82 @@ var companyCollection = {};
 var companyUserCollection = {};
 var jobCollection = {};
 
+function saveContactBulk() {
+    var contactList = req.body.ContactList;
+    var dialerAgentDialInfo = [];
+    var batchName = req.body.BatchName;
+    if (contactList && Array.isArray(contactList)) {
+        contactList.forEach(function (item) {
+            dialerAgentDialInfo.push({
+                DialerState: "New",
+                AttemptCount: 0,
+                ContactNumber: item.Number,
+                ResourceName: req.body.ResourceName,
+                ResourceId: req.params.ResourceId,
+                StartDate: req.body.StartDate,
+                OtherData: item.OtherData,
+                BatchName: batchName,
+                TenantId: req.user.tenant,
+                CompanyId: req.user.company
+            })
+        });
+    }
+
+    jobCollection[jobId] = {
+        BatchName: batchName,
+        ResourceName: req.body.ResourceName,
+        ResourceId: req.params.ResourceId,
+        Status: "Pending",
+        JobId: jobId,
+        Company: req.user.company
+    };
+
+    if (!companyCollection[req.user.iss]) {
+        companyCollection[req.user.iss] = [];
+    }
+    if (!companyUserCollection[req.user.company]) {
+        companyUserCollection[req.user.company] = [];
+    }
+
+    companyUserCollection[req.user.company].push(req.user.iss);
+    companyCollection[req.user.iss].push(jobId);
+
+    redisHandler.CollectJobList(req.user.company, req.user.iss, jobId);
+
+    var jsonString;
+    DbConn.DialerAgentDialInfo.bulkCreate(
+        dialerAgentDialInfo, {validate: false, individualHooks: true}
+    ).then(function (results) {
+        jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
+        logger.info("[Agent-Dial-handler.SaveDialInfo] - [PGSQL] - SaveContacts successfully.[%s] ", jsonString);
+    }).catch(function (err) {
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
+        logger.error("[Agent-Dial-handler.SaveDialInfo] - [%s] - [PGSQL] - SaveContacts failed", req.user.company, err);
+
+    }).finally(function () {
+        logger.info("SaveDialInfo Done...............................");
+        delete jobCollection[jobId];
+
+        redisHandler.DeleteJob(req.user.iss, jobId);
+        companyCollection[req.user.iss].splice(jobId, 1);
+        if (companyCollection[req.user.iss].length === 0) {
+            delete companyCollection[req.user.iss];
+        }
+
+    });
+}
+
 module.exports.SaveDialInfo = function (req, res) {
+
+
 
     if (!req.user || !req.user.tenant || !req.user.company) {
         throw new Error("invalid tenant or company.");
     }
     else {
-        var contactList = req.body.ContactList;
-
-        var dialerAgentDialInfo = [];
-        var batchName = req.body.BatchName;
-        if (contactList && Array.isArray(contactList)) {
-            contactList.forEach(function (item) {
-                dialerAgentDialInfo.push({
-                    DialerState: "New",
-                    AttemptCount: 0,
-                    ContactNumber: item.Number,
-                    ResourceName: req.body.ResourceName,
-                    ResourceId: req.params.ResourceId,
-                    StartDate: req.body.StartDate,
-                    OtherData: item.OtherData,
-                    BatchName: batchName,
-                    TenantId: req.user.tenant,
-                    CompanyId: req.user.company
-                })
-            });
-        }
-
         var jobId = req.body.BatchName + "_-_" + nodeUuid.v1();
-
-
-        jobCollection[jobId] = {
-            BatchName: batchName,
-            ResourceName: req.body.ResourceName,
-            ResourceId: req.params.ResourceId,
-            Status: "Pending",
-            JobId: jobId,
-            Company: req.user.company
-        };
-
-        if (!companyCollection[req.user.iss]) {
-            companyCollection[req.user.iss] = [];
-        }
-        if (!companyUserCollection[req.user.company]) {
-            companyUserCollection[req.user.company] = [];
-        }
-
-        companyUserCollection[req.user.company].push(req.user.iss);
-        companyCollection[req.user.iss].push(jobId);
-
-        redisHandler.CollectJobList(req.user.company, req.user.iss, jobId);
-
-        var jsonString;
-        DbConn.DialerAgentDialInfo.bulkCreate(
-            dialerAgentDialInfo, {validate: false, individualHooks: true}
-        ).then(function (results) {
-            jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
-            logger.info("[Agent-Dial-handler.SaveDialInfo] - [PGSQL] - SaveContacts successfully.[%s] ", jsonString);
-        }).catch(function (err) {
-            jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
-            logger.error("[Agent-Dial-handler.SaveDialInfo] - [%s] - [PGSQL] - SaveContacts failed", req.user.company, err);
-
-        }).finally(function () {
-            logger.info("SaveDialInfo Done...............................");
-            delete jobCollection[jobId];
-
-            redisHandler.DeleteJob(req.user.iss, jobId);
-            companyCollection[req.user.iss].splice(jobId, 1);
-            if (companyCollection[req.user.iss].length === 0) {
-                delete companyCollection[req.user.iss];
-            }
-
-        });
-        jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, jobCollection[jobId]);
-        res.end(jsonString);
+        saveContactBulk();
+        res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, jobCollection[jobId]));
     }
 
 };
@@ -125,49 +127,53 @@ module.exports.AssingNumberToAgent = function (req, res) {
         i++;
     }
 
-    var tenant = req.user.tenant;
-    var company = req.user.company;
+    function saveNumbers() {
+        var tenant = req.user.tenant;
+        var company = req.user.company;
 
-    var asyncvalidateUserAndGroupTasks = [];
+        var asyncvalidateUserAndGroupTasks = [];
 
-    async.forEach(agentNumberList, function (item, next) {
-        if (item.Data) {
-            var dialerAgentDialInfo = [];
-            if (item) {
-                item.Data.forEach(function (i) {
-                    dialerAgentDialInfo.push({
-                        DialerState: "New",
-                        AttemptCount: 0,
-                        ContactNumber: i.Number,
-                        OtherData: i.OtherData,
-                        ResourceName: item.ResourceName,
-                        ResourceId: item.ResourceId,
-                        StartDate: StartDate,
-                        BatchName: BatchName,
-                        TenantId: tenant,
-                        CompanyId: company
-                    })
+        async.forEach(agentNumberList, function (item, next) {
+            if (item.Data) {
+                var dialerAgentDialInfo = [];
+                if (item) {
+                    item.Data.forEach(function (i) {
+                        dialerAgentDialInfo.push({
+                            DialerState: "New",
+                            AttemptCount: 0,
+                            ContactNumber: i.Number,
+                            OtherData: i.OtherData,
+                            ResourceName: item.ResourceName,
+                            ResourceId: item.ResourceId,
+                            StartDate: StartDate,
+                            BatchName: BatchName,
+                            TenantId: tenant,
+                            CompanyId: company
+                        })
+                    });
+                }
+
+                asyncvalidateUserAndGroupTasks.push(function (callback) {
+                    DbConn.DialerAgentDialInfo.bulkCreate(
+                        dialerAgentDialInfo, {validate: false, individualHooks: true}
+                    ).then(function (results) {
+                        callback(undefined, results);
+                    }).catch(function (err) {
+                        callback(err, undefined);
+                    }).finally(function () {
+                        console.log("Job Done ......" + next);
+                    });
                 });
             }
+        });
 
-            asyncvalidateUserAndGroupTasks.push(function (callback) {
-                DbConn.DialerAgentDialInfo.bulkCreate(
-                    dialerAgentDialInfo, {validate: false, individualHooks: true}
-                ).then(function (results) {
-                    callback(undefined, results);
-                }).catch(function (err) {
-                    callback(err, undefined);
-                }).finally(function () {
-                    console.log("Job Done ......" + next);
-                });
-            });
-        }
-    });
+        async.parallel(asyncvalidateUserAndGroupTasks, function (err, results) {
+            console.log("Task Complete.........................");
+            res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, results));
+        });
+    }
 
-    async.parallel(asyncvalidateUserAndGroupTasks, function (err, results) {
-        console.log("Task Complete.........................");
-        res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, results));
-    });
+    saveNumbers();
 
 };
 
