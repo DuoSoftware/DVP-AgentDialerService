@@ -437,7 +437,7 @@ module.exports.agentDialerDispositionSummaryReport = function (req, res) {
         where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}],
         offset: ((pageNo - 1) * rowCount),
         limit: rowCount,
-        order: '"AgentDialNumberId" DESC'
+        order: [["AgentDialNumberId", "DESC"]]
     };
 
 
@@ -514,7 +514,7 @@ module.exports.agentDialerDispositionDetailsReport = function (req, res) {
         where: [{CompanyId: companyId.toString()}, {TenantId: tenantId.toString()}],
         offset: ((pageNo - 1) * rowCount),
         limit: rowCount,
-        order: '"AgentDialHistoryId" DESC'
+        order: [["AgentDialHistoryId", "DESC"]]  //'"AgentDialHistoryId" DESC'
     };
 
 
