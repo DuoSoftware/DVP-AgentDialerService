@@ -110,10 +110,6 @@ module.exports.deleteJob = function (iss, jobId) {
 
 module.exports.DeletePendingJob = function (req, res) {
 
-    if (!req.user || !req.user.tenant || !req.user.company) {
-        throw new Error("invalid tenant or company.");
-    }
-
     var jobId = req.body.JobId;
     var iss =req.user.iss ;
 

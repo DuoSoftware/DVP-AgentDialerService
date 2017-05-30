@@ -167,12 +167,12 @@ module.exports.AssingNumberToAgent = function (req, res) {
         var chunk = Math.ceil(tempData.length / agentList.length);
         var i = 0;
         while (tempData.length) {
-            var agent = agentList[i];
+            var agent = agentList[i.toString()];
             agentNumberList[agent.displayName] = {
                 "ResourceId": agent._id,
                 "ResourceName": agent.displayName,
                 "Data": tempData.splice(0, chunk).map(function (item) {
-                    return {Number: item[numberColumnName], OtherData: item[dataColumnName]};
+                    return {Number: item[numberColumnName.toString()], OtherData: item[dataColumnName.toString()]};
                 })
             };
             i++;
