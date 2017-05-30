@@ -38,7 +38,7 @@ function saveContactBulk(req, jobId) {
         });
     }
 
-    jobCollection[jobId] = {
+    jobCollection[jobId.toString()] = {
         BatchName: batchName,
         ResourceName: req.body.ResourceName,
         ResourceId: req.params.ResourceId,
@@ -47,15 +47,15 @@ function saveContactBulk(req, jobId) {
         Company: req.user.company
     };
 
-    if (!companyCollection[req.user.iss]) {
-        companyCollection[req.user.iss] = [];
+    if (!companyCollection[req.user.iss.toString()]) {
+        companyCollection[req.user.iss.toString()] = [];
     }
-    if (!companyUserCollection[req.user.company]) {
-        companyUserCollection[req.user.company] = [];
+    if (!companyUserCollection[req.user.company.toString()]) {
+        companyUserCollection[req.user.company.toString()] = [];
     }
 
-    companyUserCollection[req.user.company].push(req.user.iss);
-    companyCollection[req.user.iss].push(jobId);
+    companyUserCollection[req.user.company.toString()].push(req.user.iss);
+    companyCollection[req.user.iss.toString()].push(jobId);
 
     redisHandler.collectJobList(req.user.company, req.user.iss, jobId);
 
@@ -71,12 +71,12 @@ function saveContactBulk(req, jobId) {
 
     }).finally(function () {
         logger.info("SaveDialInfo Done...............................");
-        delete jobCollection[jobId];
+        delete jobCollection[jobId.toString()];
 
         redisHandler.deleteJob(req.user.iss, jobId);
-        companyCollection[req.user.iss].splice(jobId, 1);
-        if (companyCollection[req.user.iss].length === 0) {
-            delete companyCollection[req.user.iss];
+        companyCollection[req.user.iss.toString()].splice(jobId, 1);
+        if (companyCollection[req.user.iss.toString()].length === 0) {
+            delete companyCollection[req.user.iss.toString()];
         }
 
     });
@@ -92,7 +92,7 @@ module.exports.SaveDialInfo = function (req, res) {
         var jobId = req.body.BatchName + "_-_" + nodeUuid.v1();
         saveContactBulk(req, jobId);
 
-        res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, jobCollection[jobId]));
+        res.end(messageFormatter.FormatMessage(undefined, "SUCCESS", true, jobCollection[jobId.toString()]));
     }
 
 };
@@ -343,7 +343,7 @@ module.exports.pendingJobList = function (req, res) {
 
 module.exports.CheckStatus = function (req, res) {
 
-    var item = jobCollection[req.params.jobId];
+    var item = jobCollection[req.params.jobId.toString()];
     var jsonString = messageFormatter.FormatMessage(new Error("Invalid Information."), "EXCEPTION", false, null);
     if (item && item.Company === req.user.company) {
         jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, item);
