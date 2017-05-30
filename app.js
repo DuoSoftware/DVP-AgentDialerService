@@ -98,7 +98,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Job", authorization({
     try {
 
         logger.info("[CheckStatus] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
-        agentDialHandler.PendingJobList(req, res);
+        agentDialHandler.pendingJobList(req, res);
 
     }
     catch (ex) {

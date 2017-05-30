@@ -31,7 +31,7 @@ redisClient.on("connect", function (err) {
     redisClient.select(config.Redis.redisdb, redis.print);
 });
 
-module.exports.CollectJobList = function (company, iss, jobId) {
+module.exports.collectJobList = function (company, iss, jobId) {
 
 
     /* companyUserCollection[req.user.company].push(req.user.iss);
@@ -57,7 +57,7 @@ module.exports.CollectJobList = function (company, iss, jobId) {
 
 };
 
-module.exports.PendingJobList = function (iss, res) {
+module.exports.pendingJobList = function (iss, res) {
 
 
     /* companyUserCollection[req.user.company].push(req.user.iss);
@@ -84,7 +84,7 @@ module.exports.PendingJobList = function (iss, res) {
     });
 };
 
-module.exports.DeleteJob = function (iss, jobId) {
+module.exports.deleteJob = function (iss, jobId) {
 
     redisClient.HDEL(iss, jobId, function (err, reuslt) {
 

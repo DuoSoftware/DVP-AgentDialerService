@@ -2,7 +2,6 @@
  * Created by Waruna on 5/18/2017.
  */
 
-'use strict';
 
 var messageFormatter = require("dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js");
 var logger = require("dvp-common/LogHandler/CommonLogHandler.js").logger;
@@ -35,7 +34,7 @@ function saveContactBulk(req, jobId) {
                 BatchName: batchName,
                 TenantId: req.user.tenant,
                 CompanyId: req.user.company
-            })
+            });
         });
     }
 
@@ -58,7 +57,7 @@ function saveContactBulk(req, jobId) {
     companyUserCollection[req.user.company].push(req.user.iss);
     companyCollection[req.user.iss].push(jobId);
 
-    redisHandler.CollectJobList(req.user.company, req.user.iss, jobId);
+    redisHandler.collectJobList(req.user.company, req.user.iss, jobId);
 
     var jsonString;
     DbConn.DialerAgentDialInfo.bulkCreate(
@@ -74,7 +73,7 @@ function saveContactBulk(req, jobId) {
         logger.info("SaveDialInfo Done...............................");
         delete jobCollection[jobId];
 
-        redisHandler.DeleteJob(req.user.iss, jobId);
+        redisHandler.deleteJob(req.user.iss, jobId);
         companyCollection[req.user.iss].splice(jobId, 1);
         if (companyCollection[req.user.iss].length === 0) {
             delete companyCollection[req.user.iss];
@@ -98,9 +97,11 @@ module.exports.SaveDialInfo = function (req, res) {
 
 };
 
-function saveNumbers(req, agentNumberList, startDate, batchName, res) {
+function saveNumbers(req, agentNumberList, res) {
     var tenant = req.user.tenant;
     var company = req.user.company;
+    var batchName = req.body.BatchName;
+    var startDate = req.body.StartDate;
 
     var asyncvalidateUserAndGroupTasks = [];
 
@@ -123,6 +124,7 @@ function saveNumbers(req, agentNumberList, startDate, batchName, res) {
                     })
                 });
             }
+            console.log(next);
 
             asyncvalidateUserAndGroupTasks.push(function (callback) {
                 DbConn.DialerAgentDialInfo.bulkCreate(
@@ -132,7 +134,7 @@ function saveNumbers(req, agentNumberList, startDate, batchName, res) {
                 }).catch(function (err) {
                     callback(err, undefined);
                 }).finally(function () {
-                    console.log("Job Done ...... ", next);
+                    console.log("Job Done ...... ");
                 });
             });
         }
@@ -155,8 +157,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
         var numberColumnName = req.body.NumberColumnName;
         var dataColumnName = req.body.DataColumnName;
         var tempData = req.body.NumberList;
-        var BatchName = req.body.BatchName;
-        var StartDate = req.body.StartDate;
+
         if (req.body.Mechanism === "Random") {
             tempData.sort(function () {
                 return 0.5 - Math.random();
@@ -177,7 +178,7 @@ module.exports.AssingNumberToAgent = function (req, res) {
             i++;
         }
 
-        saveNumbers(req, agentNumberList, StartDate, BatchName, res);
+        saveNumbers(req, agentNumberList, res);
     }
 
 
@@ -330,12 +331,12 @@ module.exports.GetNumberList = function (req, res) {
      });*/
 };
 
-module.exports.PendingJobList = function (req, res) {
+module.exports.pendingJobList = function (req, res) {
     if (!req.user || !req.user.tenant || !req.user.company) {
         throw new Error("invalid tenant or company.");
     }
 
-    redisHandler.PendingJobList(req.user.iss, res);
+    redisHandler.pendingJobList(req.user.iss, res);
     /*var jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, companyCollection[req.user.iss]);
      res.end(jsonString);*/
 };
