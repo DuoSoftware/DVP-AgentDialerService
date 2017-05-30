@@ -98,90 +98,90 @@ module.exports.SaveDialInfo = function (req, res) {
 };
 
 function saveNumbers(req, agentNumberList, res) {
-    var tenant = req.user.tenant;
-    var company = req.user.company;
-    var batchName = req.body.BatchName;
-    var startDate = req.body.StartDate;
-
-    var asyncvalidateUserAndGroupTasks = [];
-
-    async.forEach(agentNumberList, function (item, next) {
-        if (item.Data) {
-            var dialerAgentDialInfo = [];
-            if (item) {
-                item.Data.forEach(function (i) {
-                    dialerAgentDialInfo.push({
-                        DialerState: "New",
-                        AttemptCount: 0,
-                        ContactNumber: i.Number,
-                        OtherData: i.OtherData,
-                        ResourceName: item.ResourceName,
-                        ResourceId: item.ResourceId,
-                        StartDate: startDate,
-                        BatchName: batchName,
-                        TenantId: tenant,
-                        CompanyId: company
-                    });
-                });
-            }
-            console.log(next);
-
-            asyncvalidateUserAndGroupTasks.push(function (callback) {
-                DbConn.DialerAgentDialInfo.bulkCreate(
-                    dialerAgentDialInfo, {validate: false, individualHooks: true}
-                ).then(function (results) {
-                    callback(null, results);
-                }).catch(function (err) {
-                    callback(err, null);
-                }).finally(function () {
-                    console.log("Job Done!");
-                });
-            });
-        }
-    });
-
-    async.parallel(asyncvalidateUserAndGroupTasks, function (err, results) {
-        console.log("Task Complete!");
-        res.end(messageFormatter.FormatMessage(null, "SUCCESS", true, results));
-    });
-}
-
-module.exports.AssingNumberToAgent = function (req, res) {
 
     if (!req.user || !req.user.tenant || !req.user.company) {
         throw new Error("invalid tenant or company.");
     }
-    else{
-        var agentNumberList = {};
-        var agentList = req.body.AgentList;
-        var numberColumnName = req.body.NumberColumnName;
-        var dataColumnName = req.body.DataColumnName;
-        var tempData = req.body.NumberList;
+    else {
+        var tenant = req.user.tenant;
+        var company = req.user.company;
+        var batchName = req.body.BatchName;
+        var startDate = req.body.StartDate;
 
-        if (req.body.Mechanism === "Random") {
-            tempData.sort(function () {
-                return 0.5 - Math.random();
-            });
-        }
+        var asyncvalidateUserAndGroupTasks = [];
 
-        var chunk = Math.ceil(tempData.length / agentList.length);
-        var i = 0;
-        while (tempData.length) {
-            var agent = agentList[i.toString()];
-            agentNumberList[agent.displayName] = {
-                "ResourceId": agent._id,
-                "ResourceName": agent.displayName,
-                "Data": tempData.splice(0, chunk).map(function (item) {
-                    return {Number: item[numberColumnName.toString()], OtherData: item[dataColumnName.toString()]};
-                })
-            };
-            i++;
-        }
+        async.forEach(agentNumberList, function (item, next) {
+            if (item.Data) {
+                var dialerAgentDialInfo = [];
+                if (item) {
+                    item.Data.forEach(function (i) {
+                        dialerAgentDialInfo.push({
+                            DialerState: "New",
+                            AttemptCount: 0,
+                            ContactNumber: i.Number,
+                            OtherData: i.OtherData,
+                            ResourceName: item.ResourceName,
+                            ResourceId: item.ResourceId,
+                            StartDate: startDate,
+                            BatchName: batchName,
+                            TenantId: tenant,
+                            CompanyId: company
+                        });
+                    });
+                }
+                console.log(next);
 
-        saveNumbers(req, agentNumberList, res);
+                asyncvalidateUserAndGroupTasks.push(function (callback) {
+                    DbConn.DialerAgentDialInfo.bulkCreate(
+                        dialerAgentDialInfo, {validate: false, individualHooks: true}
+                    ).then(function (results) {
+                        callback(null, results);
+                    }).catch(function (err) {
+                        callback(err, null);
+                    }).finally(function () {
+                        console.log("Job Done!");
+                    });
+                });
+            }
+        });
+
+        async.parallel(asyncvalidateUserAndGroupTasks, function (err, results) {
+            console.log("Task Complete!");
+            res.end(messageFormatter.FormatMessage(null, "SUCCESS", true, results));
+        });
     }
 
+}
 
+module.exports.AssingNumberToAgent = function (req, res) {
+
+    var agentNumberList = {};
+    var agentList = req.body.AgentList;
+    var numberColumnName = req.body.NumberColumnName;
+    var dataColumnName = req.body.DataColumnName;
+    var tempData = req.body.NumberList;
+
+    if (req.body.Mechanism === "Random") {
+        tempData.sort(function () {
+            return 0.5 - Math.random();
+        });
+    }
+
+    var chunk = Math.ceil(tempData.length / agentList.length);
+    var i = 0;
+    while (tempData.length) {
+        var agent = agentList[i.toString()];
+        agentNumberList[agent.displayName] = {
+            "ResourceId": agent._id,
+            "ResourceName": agent.displayName,
+            "Data": tempData.splice(0, chunk).map(function (item) {
+                return {Number: item[numberColumnName.toString()], OtherData: item[dataColumnName.toString()]};
+            })
+        };
+        i++;
+    }
+
+    saveNumbers(req, agentNumberList, res);
 };
 
 var addToHistory = function (item) {
