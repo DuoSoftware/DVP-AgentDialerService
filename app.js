@@ -269,8 +269,11 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition/Count', 
 
         logger.info('[agentDialerDispositionSummaryReportCount] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
 
-        if (!req.user ||!req.user.tenant || !req.user.company)
-            throw new Error("invalid tenant or company.");
+        if (!req.user || !req.user.tenant || !req.user.company) {
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            res.end(jsonString);
+
+        }
 
         agentDialHandler.agentDialerDispositionSummaryReportCount(req,res);
 
@@ -293,66 +296,75 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Disposition', author
 
         logger.info('[CampaignDispositionReport] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
 
-        if (!req.user ||!req.user.tenant || !req.user.company)
-            throw new Error("invalid tenant or company.");
+        if (!req.user || !req.user.tenant || !req.user.company) {
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            res.end(jsonString);
+
+        }
 
         agentDialHandler.agentDialerDispositionSummaryReport(req,res);
 
     }
     catch (ex) {
 
-        logger.error('[CampaignDispositionReport] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        logger.error("[CampaignDispositionReport] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
         var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
-        logger.debug('[CampaignDispositionReport] - Request response : %s ', jsonString);
+        logger.debug("[CampaignDispositionReport] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
     return next();
 });
 
-RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Details/Disposition/Count', authorization({
+RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/Count", authorization({
     resource: "myUserProfile",
     action: "read"
 }), function (req, res, next) {
     try {
 
-        logger.info('[agentDialerDispositionDetailsReportCount] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+        logger.info("[agentDialerDispositionDetailsReportCount] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
-        if (!req.user ||!req.user.tenant || !req.user.company)
-            throw new Error("invalid tenant or company.");
+        if (!req.user || !req.user.tenant || !req.user.company) {
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            res.end(jsonString);
+
+        }
 
         agentDialHandler.agentDialerDispositionDetailsReportCount(req,res);
 
     }
     catch (ex) {
 
-        logger.error('[agentDialerDispositionDetailsReportCount] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        logger.error("[agentDialerDispositionDetailsReportCount] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
         var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
-        logger.debug('[agentDialerDispositionDetailsReportCount] - Request response : %s ', jsonString);
+        logger.debug("[agentDialerDispositionDetailsReportCount] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
     return next();
 });
 
-RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Details/' +
-    'Disposition', authorization({
+RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/" +
+    "Disposition", authorization({
     resource: "myUserProfile",
     action: "read"
 }), function (req, res, next) {
     try {
 
-        logger.info('[agentDialerDispositionDetailsReport] - [HTTP]  - Request received -  Data - %s ', JSON.stringify(req.body));
+        logger.info("[agentDialerDispositionDetailsReport] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
 
-        if (!req.user ||!req.user.tenant || !req.user.company)
-            throw new Error("invalid tenant or company.");
+        if (!req.user || !req.user.tenant || !req.user.company) {
+            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
+            res.end(jsonString);
+
+        }
 
         agentDialHandler.agentDialerDispositionDetailsReport(req,res);
 
     }
     catch (ex) {
 
-        logger.error('[agentDialerDispositionDetailsReport] - [HTTP]  - Exception occurred -  Data - %s ', JSON.stringify(req.body), ex);
+        logger.error("[agentDialerDispositionDetailsReport] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
         var jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, undefined);
-        logger.debug('[agentDialerDispositionDetailsReport] - Request response : %s ', jsonString);
+        logger.debug("[agentDialerDispositionDetailsReport] - Request response : %s ", jsonString);
         res.end(jsonString);
     }
     return next();
@@ -360,6 +372,7 @@ RestServer.get('/DVP/API/' + version + '/AgentDialer/Report/Details/' +
 
 //------------------------- Agent Dial Handler ------------------------- \\
 
+/*
 //------------------------- Crossdomain ------------------------- \\
 
 function Crossdomain(req, res, next) {
@@ -367,13 +380,13 @@ function Crossdomain(req, res, next) {
 
     var xml = '<?xml version=""1.0""?><!DOCTYPE cross-domain-policy SYSTEM ""http://www.macromedia.com/xml/dtds/cross-domain-policy.dtd""> <cross-domain-policy>    <allow-access-from domain=""*"" />        </cross-domain-policy>';
 
-    /*var xml='<?xml version="1.0"?>\n';
+    /!*var xml='<?xml version="1.0"?>\n';
 
      xml+= '<!DOCTYPE cross-domain-policy SYSTEM "/xml/dtds/cross-domain-policy.dtd">\n';
      xml+='';
      xml+=' \n';
      xml+='\n';
-     xml+='';*/
+     xml+='';*!/
     req.setEncoding("utf8");
     res.end(xml);
     return next();
@@ -391,4 +404,4 @@ function Clientaccesspolicy(req, res, next) {
 RestServer.get("/crossdomain.xml", Crossdomain);
 RestServer.get("/clientaccesspolicy.xml", Clientaccesspolicy);
 
-//------------------------- End Crossdomain ------------------------- \\
+//------------------------- End Crossdomain ------------------------- \\*/

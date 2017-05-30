@@ -69,7 +69,7 @@ module.exports.SaveDialInfo = function (req, res) {
         jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
         logger.info("[Agent-Dial-handler.SaveDialInfo] - [PGSQL] - SaveContacts successfully.[%s] ", jsonString);
     }).catch(function (err) {
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         logger.error("[Agent-Dial-handler.SaveDialInfo] - [%s] - [PGSQL] - SaveContacts failed", req.user.company, err);
 
     }).finally(function () {
@@ -191,7 +191,7 @@ var AddToHistory = function (item) {
         logger.info("AddToHistory - [PGSQL] - Updated successfully.[%s] ", jsonString);
 
     }).error(function (err) {
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         logger.error("AddToHistory - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]", item.AgentDialNumberId, err);
     });
 };
@@ -231,7 +231,7 @@ module.exports.UpdateDialInfo = function (req, res) {
                 res.end(jsonString);
 
             }).error(function (err) {
-                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
                 logger.error("UpdateDialInfo - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]", dialId, err);
                 res.end(jsonString);
             });
@@ -242,7 +242,7 @@ module.exports.UpdateDialInfo = function (req, res) {
         }
     }).error(function (err) {
         logger.error("UpdateDialInfo - [%s] - [PGSQL] - UpdateDialInfo  failed", dialId, err);
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         res.end(jsonString);
     });
 };
@@ -289,7 +289,7 @@ module.exports.GetNumberList = function (req, res) {
         res.end(jsonString);
     }).error(function (err) {
         logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         res.end(jsonString);
     });
 
@@ -308,7 +308,7 @@ module.exports.GetNumberList = function (req, res) {
      res.end(jsonString);
      }).error(function (err) {
      logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
-     jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+     jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
      res.end(jsonString);
      });*/
 };
@@ -322,7 +322,7 @@ module.exports.PendingJobList = function (req, res) {
 module.exports.CheckStatus = function (req, res) {
 
     var item = jobCollection[req.params.jobId];
-    var jsonString = messageFormatter.FormatMessage(new Error("Invalid Information."), "EXCEPTION", false, undefined);
+    var jsonString = messageFormatter.FormatMessage(new Error("Invalid Information."), "EXCEPTION", false, null);
     if (item && item.Company === req.user.company) {
         jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, item);
     }
@@ -367,7 +367,7 @@ module.exports.HeaderDetails = function (req, res) {
         function (err, results) {
             var out;
             if (err) {
-                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
                 res.end(jsonString);
             } else {
                 var response = {};
@@ -416,11 +416,11 @@ module.exports.agentDialerDispositionSummaryReportCount = function (req, res) {
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
         }
         res.end(jsonString);
     }).error(function (err) {
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         res.end(jsonString);
     });
 
@@ -457,11 +457,11 @@ module.exports.agentDialerDispositionSummaryReport = function (req, res) {
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
         }
         res.end(jsonString);
     }).error(function (err) {
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         res.end(jsonString);
     });
 
@@ -493,11 +493,11 @@ module.exports.agentDialerDispositionDetailsReportCount = function (req, res) {
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
         }
         res.end(jsonString);
     }).error(function (err) {
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         res.end(jsonString);
     });
 
@@ -534,11 +534,11 @@ module.exports.agentDialerDispositionDetailsReport = function (req, res) {
             jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
         }
         else {
-            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
         }
         res.end(jsonString);
     }).error(function (err) {
-        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+        jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         res.end(jsonString);
     });
 

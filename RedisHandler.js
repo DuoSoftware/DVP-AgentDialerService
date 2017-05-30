@@ -13,17 +13,15 @@ var redisport = config.Redis.port;
 var redisClient = redis.createClient(redisport, redisip);
 var messageFormatter = require("dvp-common/CommonMessageGenerator/ClientMessageJsonFormatter.js");
 /*var logger = require("dvp-common/LogHandler/CommonLogHandler.js").logger;*/
-var moment = require("moment");
-
 
 redisClient.auth(config.Redis.password, function (err) {
     /*if (err)
      throw err;*/
-    console.log("Redis Auth error  " + err);
+    console.log("Redis Auth error  {0}", err);
 });
 
 redisClient.on("error", function (err) {
-    console.log("Redis connection error  " + err);
+    console.log("Redis connection error  {0}", err);
 });
 
 redisClient.on("connect", function (err) {
@@ -42,17 +40,17 @@ module.exports.CollectJobList = function (company, iss, jobId) {
 
     redisClient.hmset(company, [iss, iss], function (err, res) {
         if (err) {
-            console.log("Err " + company + " " + iss + " " + jobId);
+            console.log("Err {0} {1} {2}",company,iss,jobId);
         } else {
-            console.log("Done " + company + " " + iss + " " + jobId + " "+res);
+            console.log("Done {0} {1} {2} {3}", company, iss,jobId,res);
         }
     });
 
     redisClient.hmset(iss, [jobId, jobId], function (err, res) {
         if (err) {
-            console.log("Err ..." + company + " " + iss + " " + jobId);
+            console.log("Err {0} {1} {2}",company,iss,jobId);
         } else {
-            console.log("Done ...." + company + " " + iss + " " + jobId + " "+res);
+            console.log("Done {0} {1} {2} {3}", company, iss,jobId,res);
         }
     });
 
@@ -78,7 +76,7 @@ module.exports.PendingJobList = function (iss, res) {
                 jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, out);
             }
             else {
-                jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, undefined);
+                jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", false, null);
             }
 
         }
