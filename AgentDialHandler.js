@@ -17,6 +17,9 @@ var jobCollection = {};
 
 module.exports.SaveDialInfo = function (req, res) {
 
+    if (!req.user || !req.user.tenant || !req.user.company) {
+        throw new Error("invalid tenant or company.");
+    }
     var contactList = req.body.ContactList;
 
     var dialerAgentDialInfo = [];
@@ -38,7 +41,7 @@ module.exports.SaveDialInfo = function (req, res) {
         });
     }
 
-    var jobId = batchName + "_-_" + nodeUuid.v1();
+    var jobId = req.body.BatchName + "_-_" + nodeUuid.v1();
 
 
     jobCollection[jobId] = {
@@ -90,8 +93,7 @@ module.exports.SaveDialInfo = function (req, res) {
 module.exports.AssingNumberToAgent = function (req, res) {
 
     if (!req.user || !req.user.tenant || !req.user.company) {
-        res.end(messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null));
-        return;
+        throw new Error("invalid tenant or company.");
     }
     var agentNumberList = {};
     var agentList = req.body.AgentList;

@@ -78,14 +78,7 @@ RestServer.post("/DVP/API/" + version + "/AgentDialer/Resource/:ResourceId/Dial"
     try {
 
         logger.info("[SaveDialInfo] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
-
-        if (!req.user || !req.user.tenant || !req.user.company) {
-            jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, undefined);
-            res.end(jsonString);
-        }
-
         agentDialHandler.SaveDialInfo(req, res);
-
     }
     catch (ex) {
 
