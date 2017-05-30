@@ -147,34 +147,37 @@ module.exports.AssingNumberToAgent = function (req, res) {
     if (!req.user || !req.user.tenant || !req.user.company) {
         throw new Error("invalid tenant or company.");
     }
-    var agentNumberList = {};
-    var agentList = req.body.AgentList;
-    var numberColumnName = req.body.NumberColumnName;
-    var dataColumnName = req.body.DataColumnName;
-    var tempData = req.body.NumberList;
-    var BatchName = req.body.BatchName;
-    var StartDate = req.body.StartDate;
-    if (req.body.Mechanism === "Random") {
-        tempData.sort(function () {
-            return 0.5 - Math.random()
-        });
+    else{
+        var agentNumberList = {};
+        var agentList = req.body.AgentList;
+        var numberColumnName = req.body.NumberColumnName;
+        var dataColumnName = req.body.DataColumnName;
+        var tempData = req.body.NumberList;
+        var BatchName = req.body.BatchName;
+        var StartDate = req.body.StartDate;
+        if (req.body.Mechanism === "Random") {
+            tempData.sort(function () {
+                return 0.5 - Math.random()
+            });
+        }
+
+        var chunk = Math.ceil(tempData.length / agentList.length);
+        var i = 0;
+        while (tempData.length) {
+            var agent = agentList[i];
+            agentNumberList[agent.displayName] = {
+                "ResourceId": agent._id,
+                "ResourceName": agent.displayName,
+                "Data": tempData.splice(0, chunk).map(function (item) {
+                    return {Number: item[numberColumnName], OtherData: item[dataColumnName]}
+                })
+            };
+            i++;
+        }
+
+        saveNumbers(req, agentNumberList, StartDate, BatchName, res);
     }
 
-    var chunk = Math.ceil(tempData.length / agentList.length);
-    var i = 0;
-    while (tempData.length) {
-        var agent = agentList[i];
-        agentNumberList[agent.displayName] = {
-            "ResourceId": agent._id,
-            "ResourceName": agent.displayName,
-            "Data": tempData.splice(0, chunk).map(function (item) {
-                return {Number: item[numberColumnName], OtherData: item[dataColumnName]}
-            })
-        };
-        i++;
-    }
-
-    saveNumbers(req, agentNumberList, StartDate, BatchName, res);
 
 };
 
