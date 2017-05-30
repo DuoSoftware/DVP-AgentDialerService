@@ -199,7 +199,7 @@ var AddToHistory = function (item) {
             }
         ).then(function (results) {
 
-        jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
+        jsonString = messageFormatter.FormatMessage(null, "SUCCESS", true, results);
         logger.info("AddToHistory - [PGSQL] - Updated successfully.[%s] ", jsonString);
 
     }).error(function (err) {
@@ -238,7 +238,7 @@ module.exports.UpdateDialInfo = function (req, res) {
 
 
                 AddToHistory(cmp);
-                jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, results);
+                jsonString = messageFormatter.FormatMessage(null, "SUCCESS", true, results);
                 logger.info("UpdateDialInfo - [PGSQL] - Updated successfully.[%s] ", jsonString);
                 res.end(jsonString);
 
@@ -297,7 +297,7 @@ module.exports.GetNumberList = function (req, res) {
                 order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
             }
         ).then(function (cmp) {
-        jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
+        jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
         res.end(jsonString);
     }).error(function (err) {
         logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
@@ -316,7 +316,7 @@ module.exports.GetNumberList = function (req, res) {
      order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
      }
      ).then(function (cmp) {
-     jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, cmp);
+     jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
      res.end(jsonString);
      }).error(function (err) {
      logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
@@ -331,7 +331,7 @@ module.exports.PendingJobList = function (req, res) {
     }
 
     redisHandler.PendingJobList(req.user.iss, res);
-    /*var jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, companyCollection[req.user.iss]);
+    /*var jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, companyCollection[req.user.iss]);
      res.end(jsonString);*/
 };
 
@@ -340,7 +340,7 @@ module.exports.CheckStatus = function (req, res) {
     var item = jobCollection[req.params.jobId];
     var jsonString = messageFormatter.FormatMessage(new Error("Invalid Information."), "EXCEPTION", false, null);
     if (item && item.Company === req.user.company) {
-        jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, item);
+        jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, item);
     }
     res.end(jsonString);
 };
@@ -371,9 +371,9 @@ module.exports.HeaderDetails = function (req, res) {
                 .findAll(
                     query
                 ).then(function (cmp) {
-                callback(undefined, cmp);
+                callback(null, cmp);
             }).error(function (err) {
-                callback(err, undefined);
+                callback(err, null);
             });
         });
 
@@ -399,7 +399,7 @@ module.exports.HeaderDetails = function (req, res) {
                     });
                     response['DialerState'] = out;
                 }
-                jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, response);
+                jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, response);
                 res.end(jsonString);
             }
         });
@@ -429,7 +429,7 @@ module.exports.agentDialerDispositionSummaryReportCount = function (req, res) {
     DbConn.DialerAgentDialInfo.count(query).then(function (CamObject) {
 
         if (CamObject) {
-            jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
+            jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, CamObject);
         }
         else {
             jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
@@ -470,7 +470,7 @@ module.exports.agentDialerDispositionSummaryReport = function (req, res) {
     DbConn.DialerAgentDialInfo.findAll(query).then(function (CamObject) {
 
         if (CamObject) {
-            jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
+            jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, CamObject);
         }
         else {
             jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
@@ -506,7 +506,7 @@ module.exports.agentDialerDispositionDetailsReportCount = function (req, res) {
     DbConn.DialerAgentDialInfoHistory.count(query).then(function (CamObject) {
 
         if (CamObject) {
-            jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
+            jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, CamObject);
         }
         else {
             jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);
@@ -547,7 +547,7 @@ module.exports.agentDialerDispositionDetailsReport = function (req, res) {
     DbConn.DialerAgentDialInfoHistory.findAll(query).then(function (CamObject) {
 
         if (CamObject) {
-            jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, CamObject);
+            jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, CamObject);
         }
         else {
             jsonString = messageFormatter.FormatMessage(new Error('No record'), "EXCEPTION", false, null);

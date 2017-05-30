@@ -66,17 +66,17 @@ module.exports.PendingJobList = function (iss, res) {
     redisClient.HGETALL(iss, function (err, reuslt) {
         var jsonString;
         if (err) {
-            jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+            jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
         }
         else {
             if(reuslt){
                 var out = Object.keys(reuslt).map(function (data) {
                     return data;
                 });
-                jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", true, out);
+                jsonString = messageFormatter.FormatMessage(null, "SUCCESS", true, out);
             }
             else {
-                jsonString = messageFormatter.FormatMessage(undefined, "SUCCESS", false, null);
+                jsonString = messageFormatter.FormatMessage(null, "SUCCESS", false, null);
             }
 
         }
@@ -89,7 +89,7 @@ module.exports.DeleteJob = function (iss, jobId) {
     redisClient.HDEL(iss, jobId, function (err, reuslt) {
 
         if (err) {
-            console.log(messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined));
+            console.log(messageFormatter.FormatMessage(err, "EXCEPTION", false, null));
         }
         else {
             if (reuslt === 0) {
@@ -118,7 +118,7 @@ module.exports.DeletePendingJob = function (req, res) {
         redisClient.HDEL(iss, jobId, function (err, reuslt) {
             var jsonString;
             if (err) {
-                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
             }
             else {
                 if (reuslt === 0) {
@@ -131,7 +131,7 @@ module.exports.DeletePendingJob = function (req, res) {
                         }
                     });
                 }
-                jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, undefined);
+                jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, null);
             }
             res.end(jsonString);
         });
@@ -140,10 +140,10 @@ module.exports.DeletePendingJob = function (req, res) {
         redisClient.DEL(iss, function (err, reuslt) {
             var jsonString;
             if (err) {
-                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, undefined);
+                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
             }
             else {
-                jsonString = messageFormatter.FormatMessage(undefined, "EXCEPTION", true, reuslt);
+                jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, reuslt);
             }
             res.end(jsonString);
         });
