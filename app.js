@@ -50,7 +50,7 @@ RestServer.listen(port, function () {
 //------------------------- Agent Dial Handler ------------------------- \\
 
 RestServer.post("/DVP/API/" + version + "/AgentDialer/AssignNumbers", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "write"
 }), function (req, res, next) {
     var jsonString;
@@ -71,7 +71,7 @@ RestServer.post("/DVP/API/" + version + "/AgentDialer/AssignNumbers", authorizat
 });
 
 RestServer.post("/DVP/API/" + version + "/AgentDialer/Resource/:ResourceId/Dial", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "write"
 }), function (req, res, next) {
     var jsonString;
@@ -91,7 +91,7 @@ RestServer.post("/DVP/API/" + version + "/AgentDialer/Resource/:ResourceId/Dial"
 });
 
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Job", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "write"
 }), function (req, res, next) {
     var jsonString;
@@ -112,7 +112,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Job", authorization({
 });
 
 RestServer.del("/DVP/API/" + version + "/AgentDialer/Job", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "write"
 }), function (req, res, next) {
     var jsonString;
@@ -133,7 +133,7 @@ RestServer.del("/DVP/API/" + version + "/AgentDialer/Job", authorization({
 });
 
 RestServer.put("/DVP/API/" + version + "/AgentDialer/Number/:AgentDialNumberId/Status", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "write"
 }), function (req, res, next) {
     var jsonString;
@@ -154,7 +154,7 @@ RestServer.put("/DVP/API/" + version + "/AgentDialer/Number/:AgentDialNumberId/S
 });
 
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Job/:jobId", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "write"
 }), function (req, res, next) {
     var jsonString;
@@ -176,7 +176,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Job/:jobId", authorization(
 });
 
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Resource/:ResourceId/Numbers", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "read"
 }), function (req, res, next) {
     var jsonString;
@@ -197,7 +197,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Resource/:ResourceId/Number
 });
 
 RestServer.get("/DVP/API/" + version + "/AgentDialer/HeaderDetails", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "read"
 }), function (req, res, next) {
     var jsonString;
@@ -218,7 +218,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/HeaderDetails", authorizati
 });
 
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition/Count", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "read"
 }), function (req, res, next) {
     var jsonString;
@@ -241,7 +241,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition/Count", 
 });
 
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "read"
 }), function (req, res, next) {
     var jsonString;
@@ -264,7 +264,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition", author
 });
 
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/Count", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "read"
 }), function (req, res, next) {
     var jsonString;
@@ -288,7 +288,7 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/
 
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/" +
     "Disposition", authorization({
-    resource: "myUserProfile",
+    resource: "agentDialer",
     action: "read"
 }), function (req, res, next) {
     var jsonString;
