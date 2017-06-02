@@ -8,7 +8,8 @@
 #EXPOSE 8895
 
 FROM node:argon
-RUN git clone https://github.com/DuoSoftware/DVP-AgentDialerService.git /usr/local/src/agentdialerservice
+ARG VERSION_TAG
+RUN git clone -b $VERSION_TAG https://github.com/DuoSoftware/DVP-AgentDialerService.git /usr/local/src/agentdialerservice
 RUN cd /usr/local/src/agentdialerservice;
 WORKDIR /usr/local/src/agentdialerservice
 RUN npm install
