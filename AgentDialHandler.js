@@ -281,31 +281,37 @@ module.exports.GetNumberList = function (req, res) {
         var pageNo = req.params.pageNo;
         var rowCount = req.params.rowCount;
 
-        DbConn.DialerAgentDialInfo
-            .findAll(
-                {
-                    where: {
-                        StartDate: {$lte: req.params.StartDate},
-                        ResourceId: req.params.ResourceId,
-                        TenantId: req.user.tenant,
-                        CompanyId: req.user.company,
-                        $or: [
-                            {
-                                Redial: {
-                                    $eq: true
-                                }
-                            },
-                            {
-                                DialerState: {
-                                    $eq: "New"
-                                }
-                            }
-                        ]
+        //where: [{TenantId: req.user.tenant},{CompanyId: req.user.company}]
+        var query = {
+            where: [{StartDate: {$lte: req.params.StartDate}},
+                {ResourceId: req.params.ResourceId},
+                {TenantId: req.user.tenant},
+                {CompanyId: req.user.company},
+                {$or: [
+                    {
+                        Redial: {
+                            $eq: true
+                        }
                     },
-                    offset: ((pageNo - 1) * rowCount),
-                    limit: rowCount,
-                    order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
-                }
+                    {
+                        DialerState: {
+                            $eq: "New"
+                        }
+                    }
+                ]}],
+            offset: ((pageNo - 1) * rowCount),
+            limit: rowCount,
+            order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
+        };
+
+
+        if (req.params.BatchName) {
+            query.where.push({BatchName: req.params.BatchName});
+        }
+
+        DbConn.DialerAgentDialInfo
+            .findAll(query
+
             ).then(function (cmp) {
             jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
             res.end(jsonString);
@@ -362,6 +368,11 @@ module.exports.HeaderDetails = function (req, res) {
             where: [{TenantId: req.user.tenant},
                 {CompanyId: req.user.company}]
         }];
+
+    if (req.params.ResourceId) {
+        querys[0].where.push({ResourceId: req.params.ResourceId});
+        querys[1].where.push({ResourceId: req.params.ResourceId});
+    }
 
     var functions = [];
     querys.forEach(function (query) {
