@@ -273,6 +273,63 @@ module.exports.UpdateDialInfo = function (req, res) {
 
 };
 
+module.exports.UpdateDialInfoOnly = function (req, res) {
+
+
+    var jsonString;
+    if (!req.user || !req.user.tenant || !req.user.company) {
+        jsonString = messageFormatter.FormatMessage(new Error("invalid tenant or company."), "EXCEPTION", false, null);
+        res.end(jsonString);
+    }
+    else {
+        var dialId = req.params.AgentDialNumberId;
+
+        DbConn.DialerAgentDialInfo
+            .find(
+                {
+                    where: [{AgentDialNumberId: dialId}, {TenantId: req.user.tenant}, {CompanyId: req.user.company}]
+                }
+            ).then(function (cmp) {
+            if (cmp) {
+                cmp.DialerState = req.body.DialerState;
+                cmp.OtherData = req.body.OtherData;
+                DbConn.DialerAgentDialInfo
+                    .update(
+                        {
+                            DialerState: req.body.DialerState,
+                            OtherData: req.body.OtherData,
+                            Redial: req.body.Redial
+                        },
+                        {
+                            where: [{AgentDialNumberId: dialId}, {TenantId: req.user.tenant}, {CompanyId: req.user.company}]
+                        }
+                    ).then(function (results) {
+
+
+                    addToHistory(cmp);
+                    jsonString = messageFormatter.FormatMessage(null, "SUCCESS", true, results);
+                    logger.info("UpdateDialInfo - [PGSQL] - Updated successfully.[%s] ", jsonString);
+                    res.end(jsonString);
+
+                }).error(function (err) {
+                    jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
+                    logger.error("UpdateDialInfo - [%s] - [PGSQL] - UpdateDialInfo failed-[%s]", dialId, err);
+                    res.end(jsonString);
+                });
+            }
+            else {
+                jsonString = messageFormatter.FormatMessage(new Error("No record"), "EXCEPTION", false, null);
+                res.end(jsonString);
+            }
+        }).error(function (err) {
+            logger.error("UpdateDialInfo - [%s] - [PGSQL] - UpdateDialInfo  failed", dialId, err);
+            jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
+            res.end(jsonString);
+        });
+    }
+
+};
+
 module.exports.GetNumberList = function (req, res) {
 
     var jsonString;

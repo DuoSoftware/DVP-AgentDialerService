@@ -153,6 +153,27 @@ RestServer.put("/DVP/API/" + version + "/AgentDialer/Number/:AgentDialNumberId/S
     return next();
 });
 
+RestServer.put("/DVP/API/" + version + "/AgentDialer/Number/:AgentDialNumberId/OnlyStatus", authorization({
+    resource: "agentDialer",
+    action: "write"
+}), function (req, res, next) {
+    var jsonString;
+    try {
+
+        logger.info("[UpdateDialInfoOnly] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
+        agentDialHandler.UpdateDialInfoOnly(req, res);
+
+    }
+    catch (ex) {
+
+        logger.error("[UpdateDialInfoOnly] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
+        logger.debug("[UpdateDialInfoOnly] - Request response : %s ", jsonString);
+        res.end(jsonString);
+    }
+    return next();
+});
+
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Job/:jobId", authorization({
     resource: "agentDialer",
     action: "write"
