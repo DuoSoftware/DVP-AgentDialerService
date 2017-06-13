@@ -338,9 +338,14 @@ module.exports.GetNumberList = function (req, res) {
         var pageNo = req.params.pageNo;
         var rowCount = req.params.rowCount;
 
+        if (!req.params.StartDate) {
+            throw new error.ValidationError("Invalid Start Date.");
+        }
+
         //where: [{TenantId: req.user.tenant},{CompanyId: req.user.company}]
         var query = {
-            where: [{StartDate: {$lte: req.params.StartDate}},
+            //where: [{StartDate: {$lte:moment.utc(req.params.StartDate).format('YYYY-MM-DD HH:mm:ss.SSS Z') }},
+            where: [{StartDate: {$lte:moment.utc(req.params.StartDate).format('YYYY-MM-DD') }},
                 {ResourceId: req.params.ResourceId},
                 {TenantId: req.user.tenant},
                 {CompanyId: req.user.company},
