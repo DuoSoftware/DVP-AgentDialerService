@@ -284,6 +284,29 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition", author
     return next();
 });
 
+RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/DispositionSummary", authorization({
+    resource: "agentDialer",
+    action: "read"
+}), function (req, res, next) {
+    var jsonString;
+    try {
+
+        logger.info("[CampaignDispositionSummaryReport] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
+
+
+        agentDialHandler.agentDialerAgentSummaryReport(req, res);
+
+    }
+    catch (ex) {
+
+        logger.error("[CampaignDispositionSummaryReport] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
+        logger.debug("[CampaignDispositionSummaryReport] - Request response : %s ", jsonString);
+        res.end(jsonString);
+    }
+    return next();
+});
+
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Details/Disposition/Count", authorization({
     resource: "agentDialer",
     action: "read"
