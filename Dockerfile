@@ -7,7 +7,7 @@
 
 #EXPOSE 8895
 
-FROM node:argon
+FROM node:9.9.0
 ARG VERSION_TAG
 RUN git clone -b $VERSION_TAG https://github.com/DuoSoftware/DVP-AgentDialerService.git /usr/local/src/agentdialerservice
 RUN cd /usr/local/src/agentdialerservice;
