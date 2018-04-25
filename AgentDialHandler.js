@@ -421,14 +421,52 @@ module.exports.HeaderDetails = function (req, res) {
             [DbConn.SequelizeConn.fn("DISTINCT", DbConn.SequelizeConn.col("BatchName")), "BatchName"]
         ],
         where: [{TenantId: req.user.tenant},
-            {CompanyId: req.user.company}]
+            {CompanyId: req.user.company},{$or: [
+                {
+                    DialerState: 
+                    {
+                        $eq: "Dial"
+                    }
+                }, 
+                {
+                    DialerState: 
+                    {
+                        $eq: "New"
+                    }
+                }, 
+                {
+                    Redial: 
+                    {
+                        $eq: "true"
+                    }
+                }
+            ]}]
     },
         {
             attributes: [
                 [DbConn.SequelizeConn.fn("DISTINCT", DbConn.SequelizeConn.col("DialerState")), "DialerState"]
             ],
             where: [{TenantId: req.user.tenant},
-                {CompanyId: req.user.company}]
+                {CompanyId: req.user.company},{$or: [
+                    {
+                        DialerState: 
+                        {
+                            $eq: "Dial"
+                        }
+                    }, 
+                    {
+                        DialerState: 
+                        {
+                            $eq: "New"
+                        }
+                    }, 
+                    {
+                        Redial: 
+                        {
+                            $eq: "true"
+                        }
+                    }
+                ]}]
         }];
 
     if (req.params.ResourceId) {
