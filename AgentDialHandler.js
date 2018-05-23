@@ -345,22 +345,24 @@ module.exports.GetNumberList = function (req, res) {
         //where: [{TenantId: req.user.tenant},{CompanyId: req.user.company}]
         var query = {
             //where: [{StartDate: {$lte:moment.utc(req.params.StartDate).format('YYYY-MM-DD HH:mm:ss.SSS Z') }},
-            where: [{StartDate: {$lte:moment.utc(req.params.StartDate).format('YYYY-MM-DD') }},
+            where: [{StartDate: {$lte: moment.utc(req.params.StartDate).format('YYYY-MM-DD')}},
                 {ResourceId: req.params.ResourceId},
                 {TenantId: req.user.tenant},
                 {CompanyId: req.user.company},
-                {$or: [
-                    {
-                        Redial: {
-                            $eq: true
+                {
+                    $or: [
+                        {
+                            Redial: {
+                                $eq: true
+                            }
+                        },
+                        {
+                            DialerState: {
+                                $eq: "New"
+                            }
                         }
-                    },
-                    {
-                        DialerState: {
-                            $eq: "New"
-                        }
-                    }
-                ]}],
+                    ]
+                }],
             offset: ((pageNo - 1) * rowCount),
             limit: rowCount,
             order: [["StartDate", "ASC"], ["AttemptCount", "ASC"]]
@@ -373,10 +375,22 @@ module.exports.GetNumberList = function (req, res) {
 
         DbConn.DialerAgentDialInfo
             .findAll(query
-
             ).then(function (cmp) {
-            jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
-            res.end(jsonString);
+            if (cmp && cmp.length != 0) {
+                jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
+                res.end(jsonString);
+            }
+            else {
+                if (pageNo === "2") {
+                    req.params.pageNo = 1;
+                    getNumbers();
+                }
+                else {
+                    jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, cmp);
+                    res.end(jsonString);
+                }
+            }
+
         }).error(function (err) {
             logger.error("GetNumberList - [%s] - [PGSQL]  failed", req.params.ResourceId, err);
             jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
@@ -421,52 +435,56 @@ module.exports.HeaderDetails = function (req, res) {
             [DbConn.SequelizeConn.fn("DISTINCT", DbConn.SequelizeConn.col("BatchName")), "BatchName"]
         ],
         where: [{TenantId: req.user.tenant},
-            {CompanyId: req.user.company},{$or: [
-                {
-                    DialerState: 
+            {CompanyId: req.user.company}, {
+                $or: [
                     {
-                        $eq: "Dial"
-                    }
-                }, 
-                {
-                    DialerState: 
+                        DialerState:
+                            {
+                                $eq: "Dial"
+                            }
+                    },
                     {
-                        $eq: "New"
-                    }
-                }, 
-                {
-                    Redial: 
+                        DialerState:
+                            {
+                                $eq: "New"
+                            }
+                    },
                     {
-                        $eq: "true"
+                        Redial:
+                            {
+                                $eq: "true"
+                            }
                     }
-                }
-            ]}]
+                ]
+            }]
     },
         {
             attributes: [
                 [DbConn.SequelizeConn.fn("DISTINCT", DbConn.SequelizeConn.col("DialerState")), "DialerState"]
             ],
             where: [{TenantId: req.user.tenant},
-                {CompanyId: req.user.company},{$or: [
-                    {
-                        DialerState: 
+                {CompanyId: req.user.company}, {
+                    $or: [
                         {
-                            $eq: "Dial"
-                        }
-                    }, 
-                    {
-                        DialerState: 
+                            DialerState:
+                                {
+                                    $eq: "Dial"
+                                }
+                        },
                         {
-                            $eq: "New"
-                        }
-                    }, 
-                    {
-                        Redial: 
+                            DialerState:
+                                {
+                                    $eq: "New"
+                                }
+                        },
                         {
-                            $eq: "true"
+                            Redial:
+                                {
+                                    $eq: "true"
+                                }
                         }
-                    }
-                ]}]
+                    ]
+                }]
         }];
 
     if (req.params.ResourceId) {
@@ -601,31 +619,32 @@ module.exports.agentDialerDispositionSummaryReport = function (req, res) {
 
 };
 
-var extractResourceWiseSummary = function(batchName, startDate, endDate, companyId, tenantId, resourceName, callback)
-{
-    try
-    {
-        var query = {where :[{StartDate : { gte: startDate , lt: endDate}, CompanyId: companyId, TenantId: tenantId, ResourceId: resourceName}]};
-        if(batchName)
-        {
+var extractResourceWiseSummary = function (batchName, startDate, endDate, companyId, tenantId, resourceName, callback) {
+    try {
+        var query = {
+            where: [{
+                StartDate: {gte: startDate, lt: endDate},
+                CompanyId: companyId,
+                TenantId: tenantId,
+                ResourceId: resourceName
+            }]
+        };
+        if (batchName) {
             query.where[0].BatchName = batchName;
         }
 
-        DbConn.DialerAgentDialInfo.aggregate('*', 'count', query).then(function(tryCount)
-        {
+        DbConn.DialerAgentDialInfo.aggregate('*', 'count', query).then(function (tryCount) {
             var obj = {
                 Resource: resourceName,
                 TryCount: tryCount
             };
             callback(null, obj);
-        }).catch(function(err)
-        {
+        }).catch(function (err) {
             callback(err, null);
         });
 
     }
-    catch(ex)
-    {
+    catch (ex) {
         callback(ex, null);
     }
 
@@ -641,32 +660,28 @@ module.exports.agentDialerAgentSummaryReport = function (req, res) {
     var endDate = req.params.EndDate;
     var batchName = req.params.BatchName;
 
-    var query = {where :[{StartDate : { gte: startDate , lt: endDate}, CompanyId: companyId, TenantId: tenantId}], plain: false};
+    var query = {
+        where: [{StartDate: {gte: startDate, lt: endDate}, CompanyId: companyId, TenantId: tenantId}],
+        plain: false
+    };
 
-    if(batchName)
-    {
+    if (batchName) {
         query.where[0].BatchName = batchName;
     }
 
-    DbConn.DialerAgentDialInfo.aggregate('ResourceId', 'DISTINCT', query).then(function (distinctResources)
-    {
-        if (distinctResources)
-        {
+    DbConn.DialerAgentDialInfo.aggregate('ResourceId', 'DISTINCT', query).then(function (distinctResources) {
+        if (distinctResources) {
             var arr = [];
-            distinctResources.forEach(function(resource)
-            {
+            distinctResources.forEach(function (resource) {
                 arr.push(extractResourceWiseSummary.bind(this, batchName, startDate, endDate, companyId, tenantId, resource.DISTINCT));
 
             });
 
-            async.parallel(arr, function(err, results)
-            {
-                if(err)
-                {
+            async.parallel(arr, function (err, results) {
+                if (err) {
                     jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
                 }
-                else
-                {
+                else {
                     jsonString = messageFormatter.FormatMessage(null, "SUCCESS", true, results);
                 }
 
