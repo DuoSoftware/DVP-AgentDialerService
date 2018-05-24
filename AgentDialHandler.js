@@ -440,12 +440,6 @@ module.exports.HeaderDetails = function (req, res) {
                     {
                         DialerState:
                             {
-                                $eq: "Dial"
-                            }
-                    },
-                    {
-                        DialerState:
-                            {
                                 $eq: "New"
                             }
                     },
