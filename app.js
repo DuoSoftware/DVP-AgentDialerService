@@ -238,6 +238,28 @@ RestServer.get("/DVP/API/" + version + "/AgentDialer/HeaderDetails", authorizati
     return next();
 });
 
+RestServer.get("/DVP/API/" + version + "/AgentDialer/HeaderDetails/all", authorization({
+    resource: "agentDialer",
+    action: "read"
+}), function (req, res, next) {
+    var jsonString;
+    try {
+
+        logger.info("[AllHeaderDetails] - [HTTP]  - Request received -  Data - %s ", JSON.stringify(req.body));
+        agentDialHandler.AllHeaderDetails(req, res);
+
+    }
+    catch (ex) {
+
+        logger.error("[AllHeaderDetails] - [HTTP]  - Exception occurred -  Data - %s ", JSON.stringify(req.body), ex);
+        jsonString = messageFormatter.FormatMessage(ex, "EXCEPTION", false, null);
+        logger.debug("[AllHeaderDetails] - Request response : %s ", jsonString);
+        res.end(jsonString);
+    }
+    return next();
+});
+
+
 RestServer.get("/DVP/API/" + version + "/AgentDialer/Report/Disposition/Count", authorization({
     resource: "agentDialer",
     action: "read"

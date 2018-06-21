@@ -528,6 +528,72 @@ module.exports.HeaderDetails = function (req, res) {
 
 };
 
+module.exports.AllHeaderDetails = function (req, res) {
+
+    var jsonString;
+
+    var querys = [{
+        attributes: [
+            [DbConn.SequelizeConn.fn("DISTINCT", DbConn.SequelizeConn.col("BatchName")), "BatchName"]
+        ],
+        where: [{TenantId: req.user.tenant},
+            {CompanyId: req.user.company}]
+    },
+        {
+            attributes: [
+                [DbConn.SequelizeConn.fn("DISTINCT", DbConn.SequelizeConn.col("DialerState")), "DialerState"]
+            ],
+            where: [{TenantId: req.user.tenant},
+                {CompanyId: req.user.company}]
+        }];
+
+    if (req.params.ResourceId) {
+        querys[0].where.push({ResourceId: req.params.ResourceId});
+        querys[1].where.push({ResourceId: req.params.ResourceId});
+    }
+
+    var functions = [];
+    querys.forEach(function (query) {
+        functions.push(function (callback) {
+            DbConn.DialerAgentDialInfo
+                .findAll(
+                    query
+                ).then(function (cmp) {
+                callback(null, cmp);
+            }).error(function (err) {
+                callback(err, null);
+            });
+        });
+
+    });
+
+    async.parallel(functions,
+        function (err, results) {
+            var out;
+            if (err) {
+                jsonString = messageFormatter.FormatMessage(err, "EXCEPTION", false, null);
+                res.end(jsonString);
+            } else {
+                var response = {};
+                if (results[0]) {
+                    out = Object.keys(results[0]).map(function (data) {
+                        return results[0][data.toString()].dataValues.BatchName;
+                    });
+                    response["BatchName"] = out;
+                }
+                if (results[1]) {
+                    out = Object.keys(results[1]).map(function (data) {
+                        return results[1][data.toString()].dataValues.DialerState;
+                    });
+                    response["DialerState"] = out;
+                }
+                jsonString = messageFormatter.FormatMessage(null, "EXCEPTION", true, response);
+                res.end(jsonString);
+            }
+        });
+
+};
+
 module.exports.agentDialerDispositionSummaryReportCount = function (req, res) {
     var jsonString;
     var tenantId = req.user.tenant;
