@@ -14,6 +14,7 @@
     "config": "^1.19.0",
     "cors": "^2.7.1",
     "dvp-common": "1.1.0",
+    "dvp-common-lite": "^1.1.0",
     "dvp-dbmodels": "2.1.0",
     "enum": "^2.3.0",
     "ioredis": "^3.1.1",
